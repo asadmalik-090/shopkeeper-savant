@@ -11,70 +11,100 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  Legend
 } from 'recharts';
-import { salesByMonth, products } from '@/lib/data';
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+import { sales, products } from '@/lib/data';
 
 const formatCurrency = (value: number) => {
   return `Rs. ${value.toLocaleString()}`;
 };
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
 const Reports = () => {
-  // Data for brand distribution pie chart
-  const brandData = React.useMemo(() => {
-    const brands: Record<string, number> = {};
+  // Brand performance data
+  const brandPerformance = React.useMemo(() => {
+    const brands: Record<string, { sales: number; units: number }> = {};
     
-    products.forEach(product => {
-      if (brands[product.brand]) {
-        brands[product.brand] += product.stock;
-      } else {
-        brands[product.brand] = product.stock;
+    sales.forEach(sale => {
+      const product = products.find(p => p.name === sale.productName);
+      if (product) {
+        if (brands[product.brand]) {
+          brands[product.brand].sales += sale.price;
+          brands[product.brand].units += 1;
+        } else {
+          brands[product.brand] = { sales: sale.price, units: 1 };
+        }
       }
     });
     
-    return Object.entries(brands).map(([name, value]) => ({ name, value }));
+    return Object.entries(brands).map(([name, data]) => ({
+      name,
+      sales: data.sales,
+      units: data.units
+    })).sort((a, b) => b.sales - a.sales);
+  }, []);
+
+  // Monthly revenue data
+  const monthlyRevenue = React.useMemo(() => {
+    const monthly: Record<string, number> = {};
+    const currentYear = new Date().getFullYear();
+    
+    // Initialize all months
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    months.forEach(month => {
+      monthly[month] = 0;
+    });
+    
+    // Sum sales by month
+    sales.forEach(sale => {
+      if (sale.date.getFullYear() === currentYear) {
+        const month = months[sale.date.getMonth()];
+        monthly[month] += sale.price;
+      }
+    });
+    
+    return months.map(month => ({
+      month,
+      revenue: monthly[month]
+    }));
   }, []);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Reports</h1>
-        <p className="text-muted-foreground">Business analytics and insights</p>
+        <h1 className="text-3xl font-bold">Reports & Analytics</h1>
+        <p className="text-muted-foreground">Analyze your business performance</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Sales Chart */}
+      {/* Brand Performance */}
+      <div className="grid gap-6 md:grid-cols-2">
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Monthly Sales</CardTitle>
+            <CardTitle>Brand Performance</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={salesByMonth}>
+                <BarChart data={brandPerformance}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
+                  <XAxis dataKey="name" />
                   <YAxis 
                     tickFormatter={(value) => `${value / 1000}k`}
-                    width={50}
                   />
                   <Tooltip 
-                    formatter={(value: number) => [`${formatCurrency(value)}`, 'Sales']}
-                    labelStyle={{ color: '#111' }}
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '0.5rem',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
+                    formatter={(value: number) => [`${formatCurrency(value)}`, 'Revenue']}
                   />
                   <Bar 
                     dataKey="sales" 
                     fill="hsl(var(--primary))" 
+                    name="Revenue"
                     radius={[4, 4, 0, 0]}
-                    animationDuration={1000}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -82,40 +112,73 @@ const Reports = () => {
           </CardContent>
         </Card>
 
-        {/* Brand Distribution */}
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Inventory by Brand</CardTitle>
+            <CardTitle>Units Sold by Brand</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex h-80 items-center justify-center">
+            <div className="h-80 flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={brandData}
+                    data={brandPerformance}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     outerRadius={100}
                     fill="#8884d8"
-                    dataKey="value"
+                    dataKey="units"
                     nameKey="name"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    animationDuration={1000}
                   >
-                    {brandData.map((entry, index) => (
+                    {brandPerformance.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: number) => [`${value} units`, 'Stock']}
+                    formatter={(value: number) => [`${value} units`, 'Units Sold']}
                   />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Monthly Revenue */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Monthly Revenue (This Year)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis 
+                  tickFormatter={(value) => `${value / 1000}k`}
+                />
+                <Tooltip 
+                  formatter={(value: number) => [`${formatCurrency(value)}`, 'Revenue']}
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '0.5rem'
+                  }}
+                />
+                <Bar 
+                  dataKey="revenue" 
+                  name="Revenue"
+                  fill="hsl(var(--primary))" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
