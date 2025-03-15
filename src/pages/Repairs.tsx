@@ -1,56 +1,40 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { DataTable } from '@/components/ui/data-table';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { useAppContext } from '@/context/AppContext';
 
-// Mock repair data
-const repairs = [
-  {
-    id: '1',
-    customerName: 'Ali Hassan',
-    phone: '0300-1234567',
-    device: 'iPhone 13',
-    issue: 'Broken screen',
-    status: 'Completed',
-    cost: 15000,
-    receivedDate: new Date('2024-02-10'),
-    completionDate: new Date('2024-02-12'),
-  },
-  {
-    id: '2',
-    customerName: 'Sara Khan',
-    phone: '0321-9876543',
-    device: 'Samsung Galaxy S23',
-    issue: 'Battery replacement',
-    status: 'In Progress',
-    cost: 8000,
-    receivedDate: new Date('2024-03-01'),
-    completionDate: null,
-  },
-  {
-    id: '3',
-    customerName: 'Usman Ahmed',
-    phone: '0333-5557777',
-    device: 'Google Pixel 7',
-    issue: 'Charging port damage',
-    status: 'Pending',
-    cost: 6000,
-    receivedDate: new Date('2024-03-05'),
-    completionDate: null,
-  },
-];
+const statusColors = {
+  "Pending": "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+  "In Progress": "bg-blue-100 text-blue-800 hover:bg-blue-200",
+  "Completed": "bg-green-100 text-green-800 hover:bg-green-200",
+  "Delivered": "bg-purple-100 text-purple-800 hover:bg-purple-200",
+  "Cancelled": "bg-red-100 text-red-800 hover:bg-red-200"
+};
 
-// Form schema for adding new repair
 const repairFormSchema = z.object({
   customerName: z.string().min(1, { message: "Customer name is required" }),
   phone: z.string().min(1, { message: "Phone number is required" }),
@@ -64,17 +48,10 @@ const formatCurrency = (value: number) => {
   return `Rs. ${value.toLocaleString()}`;
 };
 
-const statusColors = {
-  'Pending': 'bg-yellow-100 text-yellow-800',
-  'In Progress': 'bg-blue-100 text-blue-800',
-  'Completed': 'bg-green-100 text-green-800',
-  'Cancelled': 'bg-red-100 text-red-800',
-};
-
 const Repairs = () => {
   const [open, setOpen] = useState(false);
-  const [repairData, setRepairData] = useState(repairs);
-
+  const { repairs, setRepairs } = useAppContext();
+  
   const form = useForm<z.infer<typeof repairFormSchema>>({
     resolver: zodResolver(repairFormSchema),
     defaultValues: {
@@ -89,35 +66,52 @@ const Repairs = () => {
 
   const onSubmit = (values: z.infer<typeof repairFormSchema>) => {
     const newRepair = {
-      id: (repairData.length + 1).toString(),
+      id: (repairs.length + 1).toString(),
       customerName: values.customerName,
       phone: values.phone,
       device: values.device,
       issue: values.issue,
-      status: values.status,
+      status: values.status as "Pending" | "In Progress" | "Completed" | "Delivered" | "Cancelled",
       cost: values.cost || 0,
       receivedDate: new Date(),
       completionDate: null,
     };
 
-    setRepairData([...repairData, newRepair]);
+    setRepairs([...repairs, newRepair]);
     setOpen(false);
     form.reset();
-    toast.success("Repair ticket created successfully");
+    toast.success("Repair ticket added successfully");
+  };
+
+  const updateRepairStatus = (id: string, newStatus: "Pending" | "In Progress" | "Completed" | "Delivered" | "Cancelled") => {
+    const updatedRepairs = repairs.map(repair => {
+      if (repair.id === id) {
+        const updated = { 
+          ...repair, 
+          status: newStatus,
+          completionDate: (newStatus === "Completed" || newStatus === "Delivered") ? new Date() : repair.completionDate
+        };
+        return updated;
+      }
+      return repair;
+    });
+    
+    setRepairs(updatedRepairs);
+    toast.success(`Repair status updated to ${newStatus}`);
   };
 
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Repairs & Services</h1>
-          <p className="text-muted-foreground">Manage device repairs and service tickets</p>
+          <h1 className="text-3xl font-bold">Repairs</h1>
+          <p className="text-muted-foreground">Manage repair tickets and service requests</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>New Repair Ticket</Button>
+            <Button>Add Repair Ticket</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Create Repair Ticket</DialogTitle>
             </DialogHeader>
@@ -143,7 +137,7 @@ const Repairs = () => {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter phone number" {...field} />
+                        <Input placeholder="Enter contact number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -156,7 +150,7 @@ const Repairs = () => {
                     <FormItem>
                       <FormLabel>Device Model</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter device model" {...field} />
+                        <Input placeholder="Enter device model/make" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -169,49 +163,63 @@ const Repairs = () => {
                     <FormItem>
                       <FormLabel>Issue Description</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Describe the issue" {...field} />
+                        <Textarea 
+                          placeholder="Describe the issue in detail" 
+                          className="min-h-[100px]" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                            <SelectItem value="In Progress">In Progress</SelectItem>
+                            <SelectItem value="Completed">Completed</SelectItem>
+                            <SelectItem value="Delivered">Delivered</SelectItem>
+                            <SelectItem value="Cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cost"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estimated Cost (Rs.)</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
+                          <Input 
+                            type="number" 
+                            placeholder="Enter cost (optional)" 
+                            {...field}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="In Progress">In Progress</SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                          <SelectItem value="Cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cost"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estimated Cost (Rs.)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">Create Ticket</Button>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button type="submit" className="w-full">Create Repair Ticket</Button>
               </form>
             </Form>
           </DialogContent>
@@ -220,11 +228,11 @@ const Repairs = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Repair Tickets</CardTitle>
+          <CardTitle>Active Repair Tickets</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
-            data={repairData}
+            data={repairs}
             columns={[
               {
                 header: "Customer",
@@ -241,34 +249,56 @@ const Repairs = () => {
               {
                 header: "Issue",
                 accessorKey: "issue",
+                cell: (info) => (
+                  <div className="max-w-[200px] truncate" title={info.getValue() as string}>
+                    {info.getValue() as string}
+                  </div>
+                ),
+              },
+              {
+                header: "Received",
+                accessorKey: "receivedDate",
+                cell: (info) => new Date(info.getValue() as Date).toLocaleDateString(),
               },
               {
                 header: "Status",
                 accessorKey: "status",
-                cell: (row) => (
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium inline-block ${
-                    statusColors[row.status as keyof typeof statusColors]
-                  }`}>
-                    {row.status}
-                  </div>
+                cell: (info) => (
+                  <Badge className={statusColors[info.getValue() as keyof typeof statusColors]}>
+                    {info.getValue() as string}
+                  </Badge>
                 ),
               },
               {
                 header: "Cost",
                 accessorKey: "cost",
-                cell: (row) => formatCurrency(row.cost),
-              },
-              {
-                header: "Received Date",
-                accessorKey: "receivedDate",
-                cell: (row) => row.receivedDate.toLocaleDateString(),
-              },
-              {
-                header: "Completion Date",
-                accessorKey: "completionDate",
-                cell: (row) => row.completionDate ? row.completionDate.toLocaleDateString() : "—",
+                cell: (info) => formatCurrency(info.getValue() as number),
               },
             ]}
+            actions={[
+              {
+                label: "Mark In Progress",
+                onClick: (repair) => updateRepairStatus(repair.id, "In Progress"),
+                showWhen: (repair) => repair.status === "Pending",
+              },
+              {
+                label: "Mark Completed",
+                onClick: (repair) => updateRepairStatus(repair.id, "Completed"),
+                showWhen: (repair) => repair.status === "In Progress",
+              },
+              {
+                label: "Mark Delivered",
+                onClick: (repair) => updateRepairStatus(repair.id, "Delivered"),
+                showWhen: (repair) => repair.status === "Completed",
+              },
+              {
+                label: "Cancel Repair",
+                onClick: (repair) => updateRepairStatus(repair.id, "Cancelled"),
+                showWhen: (repair) => ["Pending", "In Progress"].includes(repair.status),
+              },
+            ]}
+            searchPlaceholder="Search repairs..."
+            searchKeys={["customerName", "phone", "device", "issue"]}
           />
         </CardContent>
       </Card>

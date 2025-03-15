@@ -1,49 +1,38 @@
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
-import { DataTable } from '@/components/ui/data-table';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { useAppContext } from '@/context/AppContext';
 
-// Mock purchase data
-const purchases = [
-  {
-    id: '1',
-    supplierName: 'Smartphone Wholesalers',
-    productName: 'iPhone 15 Pro',
-    quantity: 10,
-    unitPrice: 95000,
-    totalAmount: 950000,
-    date: new Date('2024-02-15'),
-    status: 'Completed',
-  },
-  {
-    id: '2',
-    supplierName: 'Mobile Accessories Ltd',
-    productName: 'Samsung Galaxy S24',
-    quantity: 8,
-    unitPrice: 80000,
-    totalAmount: 640000,
-    date: new Date('2024-02-20'),
-    status: 'Completed',
-  },
-  {
-    id: '3',
-    supplierName: 'Tech Components Inc',
-    productName: 'Google Pixel 8',
-    quantity: 5,
-    unitPrice: 70000,
-    totalAmount: 350000,
-    date: new Date('2024-03-01'),
-    status: 'Pending',
-  },
-];
+// Status badge colors
+const statusColors = {
+  "Pending": "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+  "Completed": "bg-green-100 text-green-800 hover:bg-green-200",
+  "Cancelled": "bg-red-100 text-red-800 hover:bg-red-200"
+};
 
 // Form schema for adding new purchase
 const purchaseFormSchema = z.object({
@@ -54,14 +43,10 @@ const purchaseFormSchema = z.object({
   status: z.string().default("Pending"),
 });
 
-const formatCurrency = (value: number) => {
-  return `Rs. ${value.toLocaleString()}`;
-};
-
 const Purchases = () => {
   const [open, setOpen] = useState(false);
-  const [purchaseData, setPurchaseData] = useState(purchases);
-
+  const { purchases, setPurchases } = useAppContext();
+  
   const form = useForm<z.infer<typeof purchaseFormSchema>>({
     resolver: zodResolver(purchaseFormSchema),
     defaultValues: {
@@ -74,23 +59,35 @@ const Purchases = () => {
   });
 
   const onSubmit = (values: z.infer<typeof purchaseFormSchema>) => {
-    const totalAmount = values.quantity * values.unitPrice;
+    const totalCost = values.quantity * values.unitPrice;
     
     const newPurchase = {
-      id: (purchaseData.length + 1).toString(),
-      supplierName: values.supplierName,
+      id: (purchases.length + 1).toString(),
+      productId: `prod-${Date.now()}`,
       productName: values.productName,
+      supplierName: values.supplierName,
       quantity: values.quantity,
-      unitPrice: values.unitPrice,
-      totalAmount,
+      cost: totalCost,
+      status: values.status as "Pending" | "Completed" | "Cancelled",
       date: new Date(),
-      status: values.status,
     };
 
-    setPurchaseData([...purchaseData, newPurchase]);
+    setPurchases([...purchases, newPurchase]);
     setOpen(false);
     form.reset();
-    toast.success("Purchase added successfully");
+    toast.success("Purchase order added successfully");
+  };
+
+  const updatePurchaseStatus = (id: string, newStatus: "Pending" | "Completed" | "Cancelled") => {
+    const updatedPurchases = purchases.map(purchase => {
+      if (purchase.id === id) {
+        return { ...purchase, status: newStatus };
+      }
+      return purchase;
+    });
+    
+    setPurchases(updatedPurchases);
+    toast.success(`Purchase status updated to ${newStatus}`);
   };
 
   return (
@@ -98,15 +95,15 @@ const Purchases = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Purchases</h1>
-          <p className="text-muted-foreground">Manage your inventory purchases</p>
+          <p className="text-muted-foreground">Manage your inventory purchases and orders</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Add New Purchase</Button>
+            <Button>Add Purchase</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Add New Purchase</DialogTitle>
+              <DialogTitle>Create Purchase Order</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -144,7 +141,12 @@ const Purchases = () => {
                       <FormItem>
                         <FormLabel>Quantity</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="0" {...field} />
+                          <Input 
+                            type="number" 
+                            placeholder="Enter quantity" 
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -155,16 +157,46 @@ const Purchases = () => {
                     name="unitPrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Unit Price (Rs)</FormLabel>
+                        <FormLabel>Unit Price (Rs.)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="0" {...field} />
+                          <Input 
+                            type="number" 
+                            placeholder="Enter unit price" 
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                <Button type="submit" className="w-full">Add Purchase</Button>
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full">Create Purchase Order</Button>
               </form>
             </Form>
           </DialogContent>
@@ -173,51 +205,58 @@ const Purchases = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Purchase Records</CardTitle>
+          <CardTitle>Purchase Orders</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
-            data={purchaseData}
+            data={purchases}
             columns={[
-              {
-                header: "Supplier",
-                accessorKey: "supplierName",
-              },
               {
                 header: "Product",
                 accessorKey: "productName",
+              },
+              {
+                header: "Supplier",
+                accessorKey: "supplierName",
               },
               {
                 header: "Quantity",
                 accessorKey: "quantity",
               },
               {
-                header: "Unit Price",
-                accessorKey: "unitPrice",
-                cell: (row) => formatCurrency(row.unitPrice),
-              },
-              {
-                header: "Total Amount",
-                accessorKey: "totalAmount",
-                cell: (row) => formatCurrency(row.totalAmount),
+                header: "Total Cost",
+                accessorKey: "cost",
+                cell: (info) => `Rs. ${(info.getValue() as number).toLocaleString()}`,
               },
               {
                 header: "Date",
                 accessorKey: "date",
-                cell: (row) => row.date.toLocaleDateString(),
+                cell: (info) => new Date(info.getValue() as Date).toLocaleDateString(),
               },
               {
                 header: "Status",
                 accessorKey: "status",
-                cell: (row) => (
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium inline-block ${
-                    row.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {row.status}
-                  </div>
+                cell: (info) => (
+                  <Badge className={statusColors[info.getValue() as keyof typeof statusColors]}>
+                    {info.getValue() as string}
+                  </Badge>
                 ),
               },
             ]}
+            actions={[
+              {
+                label: "Mark Completed",
+                onClick: (purchase) => updatePurchaseStatus(purchase.id, "Completed"),
+                showWhen: (purchase) => purchase.status === "Pending",
+              },
+              {
+                label: "Cancel Order",
+                onClick: (purchase) => updatePurchaseStatus(purchase.id, "Cancelled"),
+                showWhen: (purchase) => purchase.status === "Pending",
+              },
+            ]}
+            searchPlaceholder="Search purchases..."
+            searchKeys={["productName", "supplierName"]}
           />
         </CardContent>
       </Card>

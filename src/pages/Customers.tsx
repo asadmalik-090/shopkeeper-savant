@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { customers } from '@/lib/data';
+import { useAppContext } from '@/context/AppContext';
 
 // Form schema for adding new customer
 const customerFormSchema = z.object({
@@ -23,7 +23,7 @@ const customerFormSchema = z.object({
 
 const Customers = () => {
   const [open, setOpen] = useState(false);
-  const [customerData, setCustomerData] = useState(customers);
+  const { customers, setCustomers } = useAppContext();
 
   const form = useForm<z.infer<typeof customerFormSchema>>({
     resolver: zodResolver(customerFormSchema),
@@ -38,17 +38,17 @@ const Customers = () => {
 
   const onSubmit = (values: z.infer<typeof customerFormSchema>) => {
     const newCustomer = {
-      id: (customerData.length + 1).toString(),
+      id: (customers.length + 1).toString(),
       name: values.name,
       phone: values.phone,
       email: values.email || undefined,
       cnic: values.cnic || undefined,
       address: values.address || undefined,
       createdAt: new Date(),
-      updatedAt: new Date(), // Added the missing updatedAt property
+      updatedAt: new Date(),
     };
 
-    setCustomerData([...customerData, newCustomer]);
+    setCustomers([...customers, newCustomer]);
     setOpen(false);
     form.reset();
     toast.success("Customer added successfully");
@@ -149,7 +149,7 @@ const Customers = () => {
         </CardHeader>
         <CardContent>
           <DataTable
-            data={customerData}
+            data={customers}
             columns={[
               {
                 header: "Name",

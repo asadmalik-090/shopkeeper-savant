@@ -5,6 +5,14 @@ import { Search, Menu, X, Bell, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -60,12 +68,51 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isSidebarOpen }) => {
         )}
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="animate-pulse">
-            <Bell size={20} />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User size={20} />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Bell size={20} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className="max-h-80 overflow-y-auto">
+                <DropdownMenuItem>
+                  <div className="flex flex-col space-y-1">
+                    <span className="font-medium">Low stock alert</span>
+                    <span className="text-xs text-muted-foreground">iPhone 13 Pro (2 left)</span>
+                    <span className="text-xs text-muted-foreground">5 minutes ago</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <div className="flex flex-col space-y-1">
+                    <span className="font-medium">New sale completed</span>
+                    <span className="text-xs text-muted-foreground">Samsung Galaxy S21</span>
+                    <span className="text-xs text-muted-foreground">1 hour ago</span>
+                  </div>
+                </DropdownMenuItem>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <User size={20} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/settings">Profile Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>Help & Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

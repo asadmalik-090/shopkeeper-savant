@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,8 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { products as initialProducts, Product } from '@/lib/data';
+import { Product } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
+import { useAppContext } from '@/context/AppContext';
 
 const ProductTypeColors = {
   new: "bg-green-100 text-green-800 hover:bg-green-200",
@@ -32,7 +32,7 @@ const ProductTypeColors = {
 };
 
 const Inventory = () => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const { products, setProducts } = useAppContext();
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Partial<Product>>({

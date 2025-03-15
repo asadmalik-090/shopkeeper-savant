@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AppProvider } from "./context/AppContext";
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
 import Index from "./pages/Index";
@@ -48,77 +49,79 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <AppLayout>
-                <Index />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/inventory" 
-            element={
-              <AppLayout>
-                <Inventory />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/sales" 
-            element={
-              <AppLayout>
-                <Sales />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/purchases" 
-            element={
-              <AppLayout>
-                <Purchases />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/customers" 
-            element={
-              <AppLayout>
-                <Customers />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/repairs" 
-            element={
-              <AppLayout>
-                <Repairs />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/reports" 
-            element={
-              <AppLayout>
-                <Reports />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/settings" 
-            element={
-              <AppLayout>
-                <Settings />
-              </AppLayout>
-            } 
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AppProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <AppLayout>
+                  <Index />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/inventory" 
+              element={
+                <AppLayout>
+                  <Inventory />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/sales" 
+              element={
+                <AppLayout>
+                  <Sales />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/purchases" 
+              element={
+                <AppLayout>
+                  <Purchases />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/customers" 
+              element={
+                <AppLayout>
+                  <Customers />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/repairs" 
+              element={
+                <AppLayout>
+                  <Repairs />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/reports" 
+              element={
+                <AppLayout>
+                  <Reports />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              } 
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AppProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
