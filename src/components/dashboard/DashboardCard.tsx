@@ -27,15 +27,17 @@ const iconMap: Record<string, React.ReactNode> = {
 interface DashboardCardProps {
   metric: MetricCard;
   className?: string;
+  style?: React.CSSProperties;  // Add this line to accept style prop
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ metric, className }) => {
+const DashboardCard: React.FC<DashboardCardProps> = ({ metric, className, style }) => {
   return (
     <div 
       className={cn(
         "rounded-xl border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md", 
         className
       )}
+      style={style} // Add this line to use the style prop
     >
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-muted-foreground">{metric.title}</span>
