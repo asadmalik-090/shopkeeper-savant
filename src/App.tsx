@@ -10,8 +10,11 @@ import Sidebar from "./components/layout/Sidebar";
 import Index from "./pages/Index";
 import Inventory from "./pages/Inventory";
 import Sales from "./pages/Sales";
+import Purchases from "./pages/Purchases";
 import Customers from "./pages/Customers";
+import Repairs from "./pages/Repairs";
 import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -74,6 +77,14 @@ const App = () => (
             } 
           />
           <Route 
+            path="/purchases" 
+            element={
+              <AppLayout>
+                <Purchases />
+              </AppLayout>
+            } 
+          />
+          <Route 
             path="/customers" 
             element={
               <AppLayout>
@@ -82,10 +93,26 @@ const App = () => (
             } 
           />
           <Route 
+            path="/repairs" 
+            element={
+              <AppLayout>
+                <Repairs />
+              </AppLayout>
+            } 
+          />
+          <Route 
             path="/reports" 
             element={
               <AppLayout>
                 <Reports />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <AppLayout>
+                <Settings />
               </AppLayout>
             } 
           />

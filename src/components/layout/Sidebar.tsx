@@ -65,10 +65,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <div className="text-xs text-muted-foreground">admin@example.com</div>
           </div>
         </div>
-        <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            cn("flex items-center w-full justify-start gap-2 text-muted-foreground px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground", 
+            isActive ? "bg-accent text-accent-foreground" : "")
+          }
+        >
           <Settings size={18} />
           <span>Settings</span>
-        </Button>
+        </NavLink>
         <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
           <LogOut size={18} />
           <span>Logout</span>
