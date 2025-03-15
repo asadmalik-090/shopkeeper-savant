@@ -57,7 +57,7 @@ const repairFormSchema = z.object({
   device: z.string().min(1, { message: "Device model is required" }),
   issue: z.string().min(1, { message: "Issue description is required" }),
   status: z.string().default("Pending"),
-  cost: z.string().transform(val => parseInt(val, 10)).optional(),
+  cost: z.coerce.number().min(0).optional(),
 });
 
 const formatCurrency = (value: number) => {
@@ -83,7 +83,7 @@ const Repairs = () => {
       device: "",
       issue: "",
       status: "Pending",
-      cost: "",
+      cost: 0,
     },
   });
 
@@ -95,7 +95,7 @@ const Repairs = () => {
       device: values.device,
       issue: values.issue,
       status: values.status,
-      cost: values.cost ? values.cost : 0,
+      cost: values.cost || 0,
       receivedDate: new Date(),
       completionDate: null,
     };

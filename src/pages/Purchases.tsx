@@ -49,8 +49,8 @@ const purchases = [
 const purchaseFormSchema = z.object({
   supplierName: z.string().min(1, { message: "Supplier name is required" }),
   productName: z.string().min(1, { message: "Product name is required" }),
-  quantity: z.string().transform(val => parseInt(val, 10)),
-  unitPrice: z.string().transform(val => parseInt(val, 10)),
+  quantity: z.coerce.number().min(1, { message: "Quantity must be at least 1" }),
+  unitPrice: z.coerce.number().min(1, { message: "Unit price must be at least 1" }),
   status: z.string().default("Pending"),
 });
 
@@ -67,8 +67,8 @@ const Purchases = () => {
     defaultValues: {
       supplierName: "",
       productName: "",
-      quantity: "",
-      unitPrice: "",
+      quantity: 0,
+      unitPrice: 0,
       status: "Pending",
     },
   });

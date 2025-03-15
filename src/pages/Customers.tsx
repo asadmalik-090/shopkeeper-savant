@@ -45,7 +45,7 @@ const Customers = () => {
       cnic: values.cnic || undefined,
       address: values.address || undefined,
       createdAt: new Date(),
-      totalPurchases: 0,
+      updatedAt: new Date(), // Added the missing updatedAt property
     };
 
     setCustomerData([...customerData, newCustomer]);
