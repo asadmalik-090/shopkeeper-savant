@@ -129,9 +129,8 @@ const Sales = () => {
                 cell: (row) => row.customerName || "Walk-in Customer",
               },
               {
-                header: "IMEI",
-                accessorKey: "imei",
-                cell: (row) => row.imei || "N/A",
+                header: "Quantity",
+                accessorKey: "quantity",
               },
               {
                 header: "Amount",
@@ -141,7 +140,6 @@ const Sales = () => {
               {
                 header: "Payment Method",
                 accessorKey: "paymentMethod",
-                cell: (row) => row.paymentMethod || "Cash",
               },
               {
                 header: "Date",
