@@ -10,10 +10,12 @@ import {
   Settings, 
   Wrench, 
   TrendingUp,
-  LogOut
+  UserRound,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -58,11 +60,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         </nav>
       </div>
       <div className="border-t p-4">
-        <div className="mb-2 flex items-center gap-3 px-2">
-          <div className="h-9 w-9 rounded-full bg-muted" />
-          <div>
-            <div className="text-sm font-medium">Admin User</div>
-            <div className="text-xs text-muted-foreground">admin@example.com</div>
+        <div className="mb-4 rounded-lg bg-muted/50 p-3">
+          <div className="flex items-center gap-3 mb-3">
+            <Avatar>
+              <AvatarImage src="/placeholder.svg" alt="User" />
+              <AvatarFallback>AU</AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="text-sm font-medium">Admin User</div>
+              <div className="text-xs text-muted-foreground">Store Manager</div>
+            </div>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Mail size={14} />
+              <span className="truncate">admin@example.com</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Phone size={14} />
+              <span>+1 (555) 123-4567</span>
+            </div>
           </div>
         </div>
         <NavLink
@@ -75,10 +92,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           <Settings size={18} />
           <span>Settings</span>
         </NavLink>
-        <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
-          <LogOut size={18} />
-          <span>Logout</span>
-        </Button>
       </div>
     </aside>
   );
