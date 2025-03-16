@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { sales } from '@/lib/data';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 import { 
   LineChart, 
   Line, 
@@ -24,6 +26,8 @@ const formatDate = (date: Date) => {
 };
 
 const Sales = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  
   // Process sales data for chart
   const salesData = React.useMemo(() => {
     const last30Days = new Date();
@@ -47,6 +51,18 @@ const Sales = () => {
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
   }, []);
+
+  // Filter sales based on search term
+  const filteredSales = React.useMemo(() => {
+    if (!searchTerm.trim()) return sales;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return sales.filter(sale => 
+      (sale.productName.toLowerCase().includes(searchLower)) ||
+      (sale.customerName && sale.customerName.toLowerCase().includes(searchLower)) ||
+      (sale.paymentMethod.toLowerCase().includes(searchLower))
+    );
+  }, [searchTerm]);
 
   return (
     <div className="space-y-8">
@@ -110,14 +126,25 @@ const Sales = () => {
         </CardContent>
       </Card>
 
+      {/* Search Bar */}
+      <div className="relative w-full max-w-md">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by product, customer or payment method..."
+          className="pl-9 pr-4"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {/* Sales Records Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Sales Records</CardTitle>
+          <CardTitle>Sales Records {searchTerm && `(${filteredSales.length} results)`}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
-            data={sales}
+            data={filteredSales}
             columns={[
               {
                 header: "Product",
@@ -153,6 +180,12 @@ const Sales = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Footer */}
+      <footer className="mt-16 border-t pt-8 pb-6 text-center text-sm text-muted-foreground">
+        <p>© {new Date().getFullYear()} Mobile Shop. All rights reserved.</p>
+        <p className="mt-1">Developed by Elevorix Solutions</p>
+      </footer>
     </div>
   );
 };

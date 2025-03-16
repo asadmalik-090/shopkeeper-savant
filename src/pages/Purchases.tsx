@@ -4,7 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { Search } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -46,6 +47,7 @@ const purchaseFormSchema = z.object({
 
 const Purchases = () => {
   const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { purchases, setPurchases } = useAppContext();
   
   const form = useForm<z.infer<typeof purchaseFormSchema>>({
@@ -91,6 +93,17 @@ const Purchases = () => {
     toast.success(`Purchase status updated to ${newStatus}`);
   };
 
+  // Filter purchases based on search term
+  const filteredPurchases = React.useMemo(() => {
+    if (!searchTerm.trim()) return purchases;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return purchases.filter(purchase => 
+      (purchase.productName.toLowerCase().includes(searchLower)) ||
+      (purchase.supplierName && purchase.supplierName.toLowerCase().includes(searchLower))
+    );
+  }, [searchTerm, purchases]);
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -105,6 +118,9 @@ const Purchases = () => {
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Create Purchase Order</DialogTitle>
+              <DialogDescription>
+                Enter details for the new purchase order below.
+              </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -203,13 +219,24 @@ const Purchases = () => {
         </Dialog>
       </div>
 
+      {/* Advanced Search Bar */}
+      <div className="relative w-full max-w-md">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by product or supplier..."
+          className="pl-9 pr-4"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Purchase Orders</CardTitle>
+          <CardTitle>Purchase Orders {searchTerm && `(${filteredPurchases.length} results)`}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
-            data={purchases}
+            data={filteredPurchases}
             columns={[
               {
                 header: "Product",
@@ -255,11 +282,15 @@ const Purchases = () => {
                 showWhen: (purchase) => purchase.status === "Pending",
               },
             ]}
-            searchPlaceholder="Search purchases..."
-            searchKeys={["productName", "supplierName"]}
           />
         </CardContent>
       </Card>
+
+      {/* Footer */}
+      <footer className="mt-16 border-t pt-8 pb-6 text-center text-sm text-muted-foreground">
+        <p>© {new Date().getFullYear()} Mobile Shop. All rights reserved.</p>
+        <p className="mt-1">Developed by Elevorix Solutions</p>
+      </footer>
     </div>
   );
 };
