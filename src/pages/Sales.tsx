@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
@@ -20,7 +19,6 @@ const formatCurrency = (value: number) => {
   return `Rs. ${value.toLocaleString()}`;
 };
 
-// Format date for display
 const formatDate = (date: Date) => {
   return date.toLocaleDateString();
 };
@@ -28,7 +26,6 @@ const formatDate = (date: Date) => {
 const Sales = () => {
   const [searchTerm, setSearchTerm] = useState("");
   
-  // Process sales data for chart
   const salesData = React.useMemo(() => {
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
@@ -52,7 +49,6 @@ const Sales = () => {
     );
   }, []);
 
-  // Filter sales based on search term
   const filteredSales = React.useMemo(() => {
     if (!searchTerm.trim()) return sales;
     
@@ -71,7 +67,6 @@ const Sales = () => {
         <p className="text-muted-foreground">Track and manage your sales transactions</p>
       </div>
 
-      {/* Sales Overview Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Sales Overview (Last 30 Days)</CardTitle>
@@ -126,7 +121,6 @@ const Sales = () => {
         </CardContent>
       </Card>
 
-      {/* Search Bar */}
       <div className="relative w-full max-w-md">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -137,7 +131,6 @@ const Sales = () => {
         />
       </div>
 
-      {/* Sales Records Table */}
       <Card>
         <CardHeader>
           <CardTitle>Sales Records {searchTerm && `(${filteredSales.length} results)`}</CardTitle>
@@ -180,12 +173,6 @@ const Sales = () => {
           />
         </CardContent>
       </Card>
-
-      {/* Footer */}
-      <footer className="mt-16 border-t pt-8 pb-6 text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} Mobile Shop. All rights reserved.</p>
-        <p className="mt-1">Developed by Elevorix Solutions</p>
-      </footer>
     </div>
   );
 };

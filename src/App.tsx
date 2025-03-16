@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
+import Footer from "./components/layout/Footer";
 import Index from "./pages/Index";
 import Inventory from "./pages/Inventory";
 import Sales from "./pages/Sales";
@@ -37,10 +38,11 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         isSidebarOpen={isSidebarOpen} 
       />
       <Sidebar isOpen={isSidebarOpen} />
-      <div className="lg:pl-64">
-        <main className="container mx-auto p-4 transition-all duration-300 animate-in fade-in slide-in">
+      <div className="lg:pl-64 flex-1 flex flex-col">
+        <main className="container mx-auto p-4 transition-all duration-300 animate-in fade-in slide-in flex-1">
           {children}
         </main>
+        <Footer />
       </div>
     </div>
   );

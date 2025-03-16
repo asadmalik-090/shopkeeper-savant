@@ -93,8 +93,18 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased overflow-x-hidden;
+    @apply bg-background text-foreground antialiased overflow-x-hidden min-h-screen;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
 
   /* Safari specific styling for better mobile experience */
