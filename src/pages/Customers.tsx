@@ -162,22 +162,25 @@ const Customers = () => {
               {
                 header: "CNIC",
                 accessorKey: "cnic",
-                cell: (row) => row.cnic || "—",
+                cell: ({ getValue }) => getValue() || "—",
               },
               {
                 header: "Email",
                 accessorKey: "email",
-                cell: (row) => row.email || "—",
+                cell: ({ getValue }) => getValue() || "—",
               },
               {
                 header: "Address",
                 accessorKey: "address",
-                cell: (row) => row.address || "—",
+                cell: ({ getValue }) => getValue() || "—",
               },
               {
                 header: "Customer Since",
                 accessorKey: "createdAt",
-                cell: (row) => row.createdAt.toLocaleDateString(),
+                cell: ({ getValue }) => {
+                  const date = getValue() as Date;
+                  return date.toLocaleDateString();
+                },
               },
             ]}
           />

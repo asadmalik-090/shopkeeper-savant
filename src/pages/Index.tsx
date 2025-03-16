@@ -92,7 +92,10 @@ const Index = () => {
                     width={50}
                   />
                   <Tooltip 
-                    formatter={(value: number) => [`${formatCurrency(value)}`, 'Sales']}
+                    formatter={(value: number, name: string) => {
+                      if (name === 'sales') return [`${formatCurrency(value)}`, 'Revenue'];
+                      return [`${value}`, 'Units Sold'];
+                    }}
                     labelStyle={{ color: '#111' }}
                     contentStyle={{ 
                       backgroundColor: 'white', 
@@ -186,17 +189,20 @@ const Index = () => {
                 {
                   header: "Customer",
                   accessorKey: "customerName",
-                  cell: (row) => row.customerName || "Walk-in Customer",
+                  cell: ({ getValue }) => getValue() || "Walk-in Customer",
                 },
                 {
                   header: "Amount",
                   accessorKey: "price",
-                  cell: (row) => formatCurrency(row.price),
+                  cell: ({ getValue }) => formatCurrency(getValue() as number),
                 },
                 {
                   header: "Date",
                   accessorKey: "date",
-                  cell: (row) => row.date.toLocaleDateString(),
+                  cell: ({ getValue }) => {
+                    const date = getValue() as Date;
+                    return date.toLocaleDateString();
+                  },
                 },
               ]}
             />

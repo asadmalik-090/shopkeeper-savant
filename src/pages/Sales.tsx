@@ -126,7 +126,7 @@ const Sales = () => {
               {
                 header: "Customer",
                 accessorKey: "customerName",
-                cell: (row) => row.customerName || "Walk-in Customer",
+                cell: ({ getValue }) => getValue() || "Walk-in Customer",
               },
               {
                 header: "Quantity",
@@ -135,7 +135,7 @@ const Sales = () => {
               {
                 header: "Amount",
                 accessorKey: "price",
-                cell: (row) => formatCurrency(row.price),
+                cell: ({ getValue }) => formatCurrency(getValue() as number),
               },
               {
                 header: "Payment Method",
@@ -144,7 +144,10 @@ const Sales = () => {
               {
                 header: "Date",
                 accessorKey: "date",
-                cell: (row) => formatDate(row.date),
+                cell: ({ getValue }) => {
+                  const date = getValue() as Date;
+                  return formatDate(date);
+                },
               },
             ]}
           />

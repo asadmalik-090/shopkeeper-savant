@@ -15,8 +15,8 @@ interface DataTableProps<T> {
   data: T[];
   columns: {
     header: string;
-    accessorKey: keyof T;
-    cell?: (info: { getValue: () => any }) => React.ReactNode;
+    accessorKey: keyof T | ((row: T) => any);
+    cell?: (info: { row: T; getValue: () => any }) => React.ReactNode;
   }[];
   onRowClick?: (row: T) => void;
   actions?: {
@@ -58,6 +58,14 @@ function DataTable<T extends Record<string, any>>({
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // Helper function to get value from row using accessorKey
+  const getValue = (row: T, accessorKey: keyof T | ((row: T) => any)) => {
+    if (typeof accessorKey === 'function') {
+      return accessorKey(row);
+    }
+    return row[accessorKey];
   };
 
   return (
@@ -107,8 +115,11 @@ function DataTable<T extends Record<string, any>>({
                     {columns.map((column, colIndex) => (
                       <td key={colIndex} className="p-4">
                         {column.cell
-                          ? column.cell({ getValue: () => row[column.accessorKey] })
-                          : row[column.accessorKey]}
+                          ? column.cell({ 
+                              row, 
+                              getValue: () => getValue(row, column.accessorKey) 
+                            })
+                          : getValue(row, column.accessorKey)}
                       </td>
                     ))}
                     {actions && (

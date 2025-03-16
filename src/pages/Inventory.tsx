@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -157,41 +158,42 @@ const Inventory = () => {
           {
             header: "Type",
             accessorKey: "type",
-            cell: (row) => (
-              <Badge className={ProductTypeColors[row.type]}>
-                {row.type.charAt(0).toUpperCase() + row.type.slice(1)}
+            cell: ({ getValue }) => (
+              <Badge className={ProductTypeColors[getValue() as 'new' | 'used' | 'refurbished']}>
+                {(getValue() as string).charAt(0).toUpperCase() + (getValue() as string).slice(1)}
               </Badge>
             ),
           },
           {
             header: "IMEI",
             accessorKey: "imei",
-            cell: (row) => row.imei || "N/A",
+            cell: ({ getValue }) => getValue() || "N/A",
           },
           {
             header: "Price",
             accessorKey: "price",
-            cell: (row) => `Rs. ${row.price.toLocaleString()}`,
+            cell: ({ getValue }) => `Rs. ${(getValue() as number).toLocaleString()}`,
           },
           {
             header: "Cost",
             accessorKey: "cost",
-            cell: (row) => `Rs. ${row.cost.toLocaleString()}`,
+            cell: ({ getValue }) => `Rs. ${(getValue() as number).toLocaleString()}`,
           },
           {
             header: "Profit",
-            accessorKey: ((row) => {
+            accessorKey: "price" as keyof Product,
+            cell: ({ row }) => {
               const profit = row.price - row.cost;
               const percentage = (profit / row.cost) * 100;
               return `Rs. ${profit.toLocaleString()} (${percentage.toFixed(0)}%)`;
-            }),
+            },
           },
           {
             header: "Stock",
             accessorKey: "stock",
-            cell: (row) => (
-              <span className={row.stock <= 2 ? "text-red-500 font-medium" : ""}>
-                {row.stock}
+            cell: ({ getValue }) => (
+              <span className={(getValue() as number) <= 2 ? "text-red-500 font-medium" : ""}>
+                {getValue()}
               </span>
             ),
           },
