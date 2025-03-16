@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +39,7 @@ const purchaseFormSchema = z.object({
   productName: z.string().min(1, { message: "Product name is required" }),
   quantity: z.coerce.number().min(1, { message: "Quantity must be at least 1" }),
   unitPrice: z.coerce.number().min(1, { message: "Unit price must be at least 1" }),
-  status: z.string().default("Pending"),
+  status: z.enum(["Pending", "Completed", "Cancelled"]).default("Pending"),
 });
 
 const Purchases = () => {
@@ -52,7 +51,7 @@ const Purchases = () => {
     defaultValues: {
       supplierName: "",
       productName: "",
-      quantity: 0,
+      quantity: 1,
       unitPrice: 0,
       status: "Pending",
     },
@@ -68,7 +67,7 @@ const Purchases = () => {
       supplierName: values.supplierName,
       quantity: values.quantity,
       cost: totalCost,
-      status: values.status as "Pending" | "Completed" | "Cancelled",
+      status: values.status,
       date: new Date(),
     };
 
@@ -145,7 +144,7 @@ const Purchases = () => {
                             type="number" 
                             placeholder="Enter quantity" 
                             {...field} 
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                           />
                         </FormControl>
                         <FormMessage />

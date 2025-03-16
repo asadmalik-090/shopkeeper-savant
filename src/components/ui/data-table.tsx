@@ -15,14 +15,15 @@ interface DataTableProps<T> {
   data: T[];
   columns: {
     header: string;
-    accessorKey: keyof T | ((row: T) => React.ReactNode);
-    cell?: (row: T) => React.ReactNode;
+    accessorKey: keyof T;
+    cell?: (info: { getValue: () => any }) => React.ReactNode;
   }[];
   onRowClick?: (row: T) => void;
   actions?: {
     label: string;
     onClick: (row: T) => void;
     icon?: React.ReactNode;
+    showWhen?: (row: T) => boolean;
   }[];
   searchPlaceholder?: string;
   searchKeys?: (keyof T)[];
@@ -106,9 +107,7 @@ function DataTable<T extends Record<string, any>>({
                     {columns.map((column, colIndex) => (
                       <td key={colIndex} className="p-4">
                         {column.cell
-                          ? column.cell(row)
-                          : typeof column.accessorKey === 'function'
-                          ? column.accessorKey(row)
+                          ? column.cell({ getValue: () => row[column.accessorKey] })
                           : row[column.accessorKey]}
                       </td>
                     ))}
@@ -121,22 +120,24 @@ function DataTable<T extends Record<string, any>>({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {actions.map((action, i) => (
-                              <React.Fragment key={i}>
-                                <DropdownMenuItem 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    action.onClick(row);
-                                  }}
-                                >
-                                  {action.icon && (
-                                    <span className="mr-2">{action.icon}</span>
-                                  )}
-                                  {action.label}
-                                </DropdownMenuItem>
-                                {i < actions.length - 1 && <DropdownMenuSeparator />}
-                              </React.Fragment>
-                            ))}
+                            {actions
+                              .filter(action => !action.showWhen || action.showWhen(row))
+                              .map((action, i, filteredActions) => (
+                                <React.Fragment key={i}>
+                                  <DropdownMenuItem 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      action.onClick(row);
+                                    }}
+                                  >
+                                    {action.icon && (
+                                      <span className="mr-2">{action.icon}</span>
+                                    )}
+                                    {action.label}
+                                  </DropdownMenuItem>
+                                  {i < filteredActions.length - 1 && <DropdownMenuSeparator />}
+                                </React.Fragment>
+                              ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>

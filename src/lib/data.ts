@@ -1,4 +1,3 @@
-
 export type Product = {
   id: string;
   name: string;
@@ -48,7 +47,7 @@ export type Purchase = {
   supplierName?: string;
   quantity: number;
   cost: number;
-  status: 'completed' | 'pending' | 'cancelled';
+  status: 'Pending' | 'Completed' | 'Cancelled';
   date: Date;
 };
 
@@ -208,7 +207,7 @@ export const purchases: Purchase[] = [
     supplierName: 'Mobile World',
     quantity: 2,
     cost: 160000 * 2,
-    status: 'completed',
+    status: 'Completed',
     date: new Date('2023-01-01'),
   },
   {
@@ -218,7 +217,7 @@ export const purchases: Purchase[] = [
     supplierName: 'Tech Imports',
     quantity: 3,
     cost: 100000 * 3,
-    status: 'completed',
+    status: 'Completed',
     date: new Date('2023-01-05'),
   },
 ];

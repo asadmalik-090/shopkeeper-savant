@@ -40,7 +40,7 @@ const repairFormSchema = z.object({
   phone: z.string().min(1, { message: "Phone number is required" }),
   device: z.string().min(1, { message: "Device model is required" }),
   issue: z.string().min(1, { message: "Issue description is required" }),
-  status: z.string().default("Pending"),
+  status: z.enum(["Pending", "In Progress", "Completed", "Delivered", "Cancelled"]).default("Pending"),
   cost: z.coerce.number().min(0).optional(),
 });
 
@@ -71,7 +71,7 @@ const Repairs = () => {
       phone: values.phone,
       device: values.device,
       issue: values.issue,
-      status: values.status as "Pending" | "In Progress" | "Completed" | "Delivered" | "Cancelled",
+      status: values.status,
       cost: values.cost || 0,
       receivedDate: new Date(),
       completionDate: null,
@@ -212,6 +212,7 @@ const Repairs = () => {
                             type="number" 
                             placeholder="Enter cost (optional)" 
                             {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
                         </FormControl>
                         <FormMessage />
