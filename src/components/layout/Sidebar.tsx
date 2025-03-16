@@ -10,18 +10,19 @@ import {
   Settings, 
   Wrench, 
   TrendingUp,
-  UserRound,
-  Mail,
-  Phone
+  UserRound
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAppContext } from '@/context/AppContext';
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+  const { currentUser } = useAppContext();
+  
   const navItems = [
     { to: '/', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
     { to: '/inventory', icon: <Package size={18} />, label: 'Inventory' },
@@ -61,24 +62,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       </div>
       <div className="border-t p-4">
         <div className="mb-4 rounded-lg bg-muted/50 p-3">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3">
             <Avatar>
               <AvatarImage src="/placeholder.svg" alt="User" />
               <AvatarFallback>AU</AvatarFallback>
             </Avatar>
             <div>
-              <div className="text-sm font-medium">Admin User</div>
-              <div className="text-xs text-muted-foreground">Store Manager</div>
-            </div>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Mail size={14} />
-              <span className="truncate">admin@example.com</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Phone size={14} />
-              <span>+1 (555) 123-4567</span>
+              <div className="text-sm font-medium">{currentUser?.name || 'Admin User'}</div>
+              <div className="text-xs text-muted-foreground">{currentUser?.role || 'Store Manager'}</div>
             </div>
           </div>
         </div>
