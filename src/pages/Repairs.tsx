@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
+import { PriceInput } from '@/components/ui/price-input';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -206,13 +208,12 @@ const Repairs = () => {
                     name="cost"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Estimated Cost (Rs.)</FormLabel>
+                        <FormLabel>Estimated Cost</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="Enter cost (optional)" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          <PriceInput
+                            placeholder="Enter estimated cost"
+                            value={field.value || 0}
+                            onChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />

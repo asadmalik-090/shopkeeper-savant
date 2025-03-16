@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
+import { PriceInput } from '@/components/ui/price-input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -295,23 +295,21 @@ const Inventory = () => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input
+                  <PriceInput
                     id="price"
                     name="price"
-                    type="number"
                     value={currentProduct.price}
-                    onChange={handleInputChange}
+                    onChange={(value) => setCurrentProduct({ ...currentProduct, price: value })}
                     required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cost">Cost</Label>
-                  <Input
+                  <PriceInput
                     id="cost"
                     name="cost"
-                    type="number"
                     value={currentProduct.cost}
-                    onChange={handleInputChange}
+                    onChange={(value) => setCurrentProduct({ ...currentProduct, cost: value })}
                     required
                   />
                 </div>

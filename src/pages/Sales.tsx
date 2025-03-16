@@ -68,7 +68,7 @@ const Sales = () => {
                 <XAxis dataKey="date" />
                 <YAxis 
                   yAxisId="left"
-                  tickFormatter={(value) => `${value / 1000}k`}
+                  tickFormatter={(value) => `${(value / 1000).toLocaleString()}k`}
                 />
                 <YAxis 
                   yAxisId="right" 
