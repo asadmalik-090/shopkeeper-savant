@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 
 // This script is a workaround for running Vite when the global command isn't found
