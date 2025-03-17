@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product, Customer, Sale, Purchase, customers as initialCustomers, products as initialProducts, sales as initialSales, purchases as initialPurchases } from '@/lib/data';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -46,6 +45,24 @@ export interface Repair {
   completionDate: Date | null;
 }
 
+// Action types for undo/redo functionality
+export type ActionType = 
+  | { type: 'ADD_PRODUCT'; product: Product }
+  | { type: 'UPDATE_PRODUCT'; product: Product; previousProduct: Product }
+  | { type: 'DELETE_PRODUCT'; product: Product }
+  | { type: 'ADD_CUSTOMER'; customer: Customer }
+  | { type: 'UPDATE_CUSTOMER'; customer: Customer; previousCustomer: Customer }
+  | { type: 'DELETE_CUSTOMER'; customer: Customer }
+  | { type: 'ADD_SALE'; sale: Sale; productStock: { id: string; before: number; after: number } }
+  | { type: 'UPDATE_SALE'; sale: Sale; previousSale: Sale; productStock: { id: string; before: number; after: number } }
+  | { type: 'DELETE_SALE'; sale: Sale; productStock: { id: string; before: number; after: number } }
+  | { type: 'ADD_PURCHASE'; purchase: Purchase; productStock: { id: string; before: number; after: number } }
+  | { type: 'UPDATE_PURCHASE'; purchase: Purchase; previousPurchase: Purchase; productStock: { id: string; before: number; after: number } }
+  | { type: 'DELETE_PURCHASE'; purchase: Purchase; productStock: { id: string; before: number; after: number } }
+  | { type: 'ADD_REPAIR'; repair: Repair }
+  | { type: 'UPDATE_REPAIR'; repair: Repair; previousRepair: Repair }
+  | { type: 'DELETE_REPAIR'; repair: Repair };
+
 interface AppContextType {
   // Data management
   products: Product[];
@@ -81,9 +98,9 @@ interface AppContextType {
   updateUserProfile: (user: User) => void;
   
   // Action history for undo/redo
-  actionHistory: any[];
+  actionHistory: ActionType[];
   currentActionIndex: number;
-  addAction: (action: any) => void;
+  addAction: (action: ActionType) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -213,7 +230,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [rolePermissions, setRolePermissions] = useState<Record<UserRole, RolePermissions>>(defaultRolePermissions);
   
   // Action history for undo/redo
-  const [actionHistory, setActionHistory] = useState<any[]>([]);
+  const [actionHistory, setActionHistory] = useState<ActionType[]>([]);
   const [currentActionIndex, setCurrentActionIndex] = useState<number>(-1);
   
   // Save users to localStorage when they change
@@ -356,7 +373,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
   
   // Action history functions for undo/redo
-  const addAction = (action: any) => {
+  const addAction = (action: ActionType) => {
     const newHistory = [...actionHistory.slice(0, currentActionIndex + 1), action];
     setActionHistory(newHistory);
     setCurrentActionIndex(newHistory.length - 1);
@@ -365,34 +382,250 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const undo = () => {
     if (currentActionIndex >= 0) {
       const action = actionHistory[currentActionIndex];
-      // Apply inverse of action
-      if (action.type === 'ADD_PRODUCT') {
-        setProducts(prev => prev.filter(p => p.id !== action.product.id));
-      } else if (action.type === 'UPDATE_PRODUCT') {
-        setProducts(prev => prev.map(p => p.id === action.product.id ? action.previousProduct : p));
-      } else if (action.type === 'DELETE_PRODUCT') {
-        setProducts(prev => [...prev, action.product]);
+      
+      switch (action.type) {
+        case 'ADD_PRODUCT':
+          setProducts(prev => prev.filter(p => p.id !== action.product.id));
+          break;
+          
+        case 'UPDATE_PRODUCT':
+          setProducts(prev => prev.map(p => p.id === action.product.id ? action.previousProduct : p));
+          break;
+          
+        case 'DELETE_PRODUCT':
+          setProducts(prev => [...prev, action.product]);
+          break;
+          
+        case 'ADD_CUSTOMER':
+          setCustomers(prev => prev.filter(c => c.id !== action.customer.id));
+          break;
+          
+        case 'UPDATE_CUSTOMER':
+          setCustomers(prev => prev.map(c => c.id === action.customer.id ? action.previousCustomer : c));
+          break;
+          
+        case 'DELETE_CUSTOMER':
+          setCustomers(prev => [...prev, action.customer]);
+          break;
+          
+        case 'ADD_SALE': {
+          // Remove the sale
+          setSales(prev => prev.filter(s => s.id !== action.sale.id));
+          
+          // Restore product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.before } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'UPDATE_SALE': {
+          // Restore previous sale
+          setSales(prev => prev.map(s => s.id === action.sale.id ? action.previousSale : s));
+          
+          // Restore product stock (this is simplified, would need to handle product changes too)
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.before } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'DELETE_SALE': {
+          // Restore the sale
+          setSales(prev => [...prev, action.sale]);
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.before } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'ADD_PURCHASE': {
+          // Remove the purchase
+          setPurchases(prev => prev.filter(p => p.id !== action.purchase.id));
+          
+          // Restore product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.before } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'UPDATE_PURCHASE': {
+          // Restore previous purchase
+          setPurchases(prev => prev.map(p => p.id === action.purchase.id ? action.previousPurchase : p));
+          
+          // Restore product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.before } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'DELETE_PURCHASE': {
+          // Restore the purchase
+          setPurchases(prev => [...prev, action.purchase]);
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.before } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'ADD_REPAIR':
+          setRepairs(prev => prev.filter(r => r.id !== action.repair.id));
+          break;
+          
+        case 'UPDATE_REPAIR':
+          setRepairs(prev => prev.map(r => r.id === action.repair.id ? action.previousRepair : r));
+          break;
+          
+        case 'DELETE_REPAIR':
+          setRepairs(prev => [...prev, action.repair]);
+          break;
       }
-      // Add more action types as needed
       
       setCurrentActionIndex(currentActionIndex - 1);
+      toast.info("Action undone");
     }
   };
   
   const redo = () => {
     if (currentActionIndex < actionHistory.length - 1) {
       const action = actionHistory[currentActionIndex + 1];
-      // Apply action
-      if (action.type === 'ADD_PRODUCT') {
-        setProducts(prev => [...prev, action.product]);
-      } else if (action.type === 'UPDATE_PRODUCT') {
-        setProducts(prev => prev.map(p => p.id === action.product.id ? action.product : p));
-      } else if (action.type === 'DELETE_PRODUCT') {
-        setProducts(prev => prev.filter(p => p.id !== action.product.id));
+      
+      switch (action.type) {
+        case 'ADD_PRODUCT':
+          setProducts(prev => [...prev, action.product]);
+          break;
+          
+        case 'UPDATE_PRODUCT':
+          setProducts(prev => prev.map(p => p.id === action.product.id ? action.product : p));
+          break;
+          
+        case 'DELETE_PRODUCT':
+          setProducts(prev => prev.filter(p => p.id !== action.product.id));
+          break;
+          
+        case 'ADD_CUSTOMER':
+          setCustomers(prev => [...prev, action.customer]);
+          break;
+          
+        case 'UPDATE_CUSTOMER':
+          setCustomers(prev => prev.map(c => c.id === action.customer.id ? action.customer : c));
+          break;
+          
+        case 'DELETE_CUSTOMER':
+          setCustomers(prev => prev.filter(c => c.id !== action.customer.id));
+          break;
+          
+        case 'ADD_SALE': {
+          // Add the sale back
+          setSales(prev => [...prev, action.sale]);
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.after } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'UPDATE_SALE': {
+          // Update the sale
+          setSales(prev => prev.map(s => s.id === action.sale.id ? action.sale : s));
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.after } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'DELETE_SALE': {
+          // Remove the sale again
+          setSales(prev => prev.filter(s => s.id !== action.sale.id));
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.after } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'ADD_PURCHASE': {
+          // Add the purchase back
+          setPurchases(prev => [...prev, action.purchase]);
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.after } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'UPDATE_PURCHASE': {
+          // Update the purchase
+          setPurchases(prev => prev.map(p => p.id === action.purchase.id ? action.purchase : p));
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.after } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'DELETE_PURCHASE': {
+          // Remove the purchase again
+          setPurchases(prev => prev.filter(p => p.id !== action.purchase.id));
+          
+          // Update product stock
+          setProducts(prev => prev.map(p => 
+            p.id === action.productStock.id 
+              ? { ...p, stock: action.productStock.after } 
+              : p
+          ));
+          break;
+        }
+          
+        case 'ADD_REPAIR':
+          setRepairs(prev => [...prev, action.repair]);
+          break;
+          
+        case 'UPDATE_REPAIR':
+          setRepairs(prev => prev.map(r => r.id === action.repair.id ? action.repair : r));
+          break;
+          
+        case 'DELETE_REPAIR':
+          setRepairs(prev => prev.filter(r => r.id !== action.repair.id));
+          break;
       }
-      // Add more action types as needed
       
       setCurrentActionIndex(currentActionIndex + 1);
+      toast.info("Action redone");
     }
   };
   

@@ -1,9 +1,18 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
-import { sales } from '@/lib/data';
+import { useAppContext } from '@/context/AppContext';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { toast } from 'sonner';
+import { Edit, Save, Trash, Plus, Search, Undo, Redo } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { 
   LineChart, 
   Line, 
@@ -23,9 +32,66 @@ const formatDate = (date: Date) => {
   return date.toLocaleDateString();
 };
 
+const saleFormSchema = z.object({
+  productId: z.string().min(1, { message: "Product is required" }),
+  customerId: z.string().optional(),
+  quantity: z.number().min(1, { message: "Quantity must be at least 1" }),
+  paymentMethod: z.enum(['cash', 'bank', 'easypaisa', 'jazzcash', 'other']),
+});
+
 const Sales = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [open, setOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState<any>(null);
   
+  const { 
+    sales, 
+    setSales, 
+    products, 
+    customers, 
+    setProducts,
+    addAction,
+    canUndo,
+    canRedo,
+    undo,
+    redo
+  } = useAppContext();
+  
+  const form = useForm<z.infer<typeof saleFormSchema>>({
+    resolver: zodResolver(saleFormSchema),
+    defaultValues: {
+      productId: "",
+      customerId: "",
+      quantity: 1,
+      paymentMethod: "cash",
+    },
+  });
+
+  // Reset form when dialog closes
+  React.useEffect(() => {
+    if (!open) {
+      setEditingSale(null);
+      form.reset({
+        productId: "",
+        customerId: "",
+        quantity: 1,
+        paymentMethod: "cash",
+      });
+    }
+  }, [open, form]);
+
+  // Set form values when editing
+  React.useEffect(() => {
+    if (editingSale) {
+      form.reset({
+        productId: editingSale.productId,
+        customerId: editingSale.customerId || "",
+        quantity: editingSale.quantity,
+        paymentMethod: editingSale.paymentMethod,
+      });
+    }
+  }, [editingSale, form]);
+
   const salesData = React.useMemo(() => {
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
@@ -47,7 +113,7 @@ const Sales = () => {
     return Object.values(salesByDay).sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-  }, []);
+  }, [sales]);
 
   const filteredSales = React.useMemo(() => {
     if (!searchTerm.trim()) return sales;
@@ -58,13 +124,314 @@ const Sales = () => {
       (sale.customerName && sale.customerName.toLowerCase().includes(searchLower)) ||
       (sale.paymentMethod.toLowerCase().includes(searchLower))
     );
-  }, [searchTerm]);
+  }, [searchTerm, sales]);
+
+  const onSubmit = (values: z.infer<typeof saleFormSchema>) => {
+    const product = products.find(p => p.id === values.productId);
+    
+    if (!product) {
+      toast.error("Product not found");
+      return;
+    }
+    
+    if (product.stock < values.quantity) {
+      toast.error("Not enough stock available");
+      return;
+    }
+    
+    const customer = values.customerId 
+      ? customers.find(c => c.id === values.customerId) 
+      : null;
+    
+    const totalPrice = product.price * values.quantity;
+    const totalCost = product.cost * values.quantity;
+    
+    if (editingSale) {
+      // Restore original product stock
+      const originalProduct = products.find(p => p.id === editingSale.productId);
+      if (originalProduct) {
+        const updatedProducts = products.map(p => {
+          if (p.id === originalProduct.id) {
+            return { ...p, stock: p.stock + editingSale.quantity };
+          }
+          return p;
+        });
+        
+        // Then update with new values
+        const finalProducts = updatedProducts.map(p => {
+          if (p.id === product.id) {
+            return { ...p, stock: p.stock - values.quantity };
+          }
+          return p;
+        });
+        
+        setProducts(finalProducts);
+      }
+      
+      // Update the sale
+      const updatedSale = {
+        ...editingSale,
+        productId: values.productId,
+        productName: product.name,
+        customerId: values.customerId || undefined,
+        customerName: customer ? customer.name : undefined,
+        quantity: values.quantity,
+        price: totalPrice,
+        cost: totalCost,
+        profit: totalPrice - totalCost,
+        paymentMethod: values.paymentMethod,
+        updatedAt: new Date(),
+      };
+      
+      const updatedSales = sales.map(s => 
+        s.id === editingSale.id ? updatedSale : s
+      );
+      
+      setSales(updatedSales);
+      
+      // Record action for undo/redo
+      addAction({
+        type: 'UPDATE_SALE',
+        sale: updatedSale,
+        previousSale: editingSale,
+        productStock: {
+          id: product.id,
+          before: product.stock,
+          after: product.stock - values.quantity
+        }
+      });
+      
+      toast.success("Sale updated successfully");
+    } else {
+      // Create new sale
+      const newSale = {
+        id: (sales.length + 1).toString(),
+        productId: values.productId,
+        productName: product.name,
+        customerId: values.customerId || undefined,
+        customerName: customer ? customer.name : undefined,
+        quantity: values.quantity,
+        price: totalPrice,
+        cost: totalCost,
+        profit: totalPrice - totalCost,
+        paymentMethod: values.paymentMethod,
+        status: 'completed',
+        date: new Date(),
+      };
+      
+      setSales([...sales, newSale]);
+      
+      // Update product stock
+      const updatedProducts = products.map(p => {
+        if (p.id === product.id) {
+          return { ...p, stock: p.stock - values.quantity };
+        }
+        return p;
+      });
+      
+      setProducts(updatedProducts);
+      
+      // Record action for undo/redo
+      addAction({
+        type: 'ADD_SALE',
+        sale: newSale,
+        productStock: {
+          id: product.id,
+          before: product.stock,
+          after: product.stock - values.quantity
+        }
+      });
+      
+      toast.success("Sale recorded successfully");
+    }
+    
+    setOpen(false);
+    form.reset();
+  };
+
+  const handleDelete = (sale: any) => {
+    // Restore product stock
+    const product = products.find(p => p.id === sale.productId);
+    if (product) {
+      const updatedProducts = products.map(p => {
+        if (p.id === sale.productId) {
+          return { ...p, stock: p.stock + sale.quantity };
+        }
+        return p;
+      });
+      
+      setProducts(updatedProducts);
+      
+      // Record action for undo/redo
+      addAction({
+        type: 'DELETE_SALE',
+        sale,
+        productStock: {
+          id: product.id,
+          before: product.stock,
+          after: product.stock + sale.quantity
+        }
+      });
+      
+      setSales(sales.filter(s => s.id !== sale.id));
+      toast.success("Sale deleted successfully");
+    }
+  };
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Sales Management</h1>
-        <p className="text-muted-foreground">Track and manage your sales transactions</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Sales Management</h1>
+          <p className="text-muted-foreground">Track and manage your sales transactions</p>
+        </div>
+        <div className="flex space-x-2">
+          {canUndo && (
+            <Button variant="outline" onClick={undo}>
+              <Undo className="mr-2 h-4 w-4" />
+              Undo
+            </Button>
+          )}
+          {canRedo && (
+            <Button variant="outline" onClick={redo}>
+              <Redo className="mr-2 h-4 w-4" />
+              Redo
+            </Button>
+          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Record Sale
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingSale ? "Edit Sale" : "Record New Sale"}
+                </DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="productId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select product" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {products
+                              .filter(p => p.stock > 0 || p.id === editingSale?.productId)
+                              .map((product) => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  {product.name} - Rs. {product.price.toLocaleString()} 
+                                  (Stock: {product.stock})
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="customerId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Customer (Optional)</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select customer" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="">Walk-in Customer</SelectItem>
+                            {customers.map((customer) => (
+                              <SelectItem key={customer.id} value={customer.id}>
+                                {customer.name} ({customer.phone})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="1" 
+                            {...field}
+                            onChange={e => field.onChange(parseInt(e.target.value, 10) || 1)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Method</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select payment method" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="bank">Bank Transfer</SelectItem>
+                            <SelectItem value="easypaisa">Easypaisa</SelectItem>
+                            <SelectItem value="jazzcash">JazzCash</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button type="submit" className="w-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    {editingSale ? "Update Sale" : "Record Sale"}
+                  </Button>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>
@@ -158,8 +525,17 @@ const Sales = () => {
                 cell: ({ getValue }) => formatCurrency(getValue() as number),
               },
               {
+                header: "Profit",
+                accessorKey: "profit",
+                cell: ({ getValue }) => formatCurrency(getValue() as number),
+              },
+              {
                 header: "Payment Method",
                 accessorKey: "paymentMethod",
+                cell: ({ getValue }) => {
+                  const method = getValue() as string;
+                  return method.charAt(0).toUpperCase() + method.slice(1);
+                },
               },
               {
                 header: "Date",
@@ -170,6 +546,23 @@ const Sales = () => {
                 },
               },
             ]}
+            actions={[
+              {
+                label: "Edit",
+                onClick: (sale) => {
+                  setEditingSale(sale);
+                  setOpen(true);
+                },
+                icon: <Edit className="h-4 w-4" />,
+              },
+              {
+                label: "Delete",
+                onClick: (sale) => handleDelete(sale),
+                icon: <Trash className="h-4 w-4" />,
+              },
+            ]}
+            searchKeys={["productName", "customerName", "paymentMethod"]}
+            searchPlaceholder="Search sales..."
           />
         </CardContent>
       </Card>
