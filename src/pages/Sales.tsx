@@ -180,6 +180,7 @@ const Sales = () => {
         cost: totalCost,
         profit: totalPrice - totalCost,
         paymentMethod: values.paymentMethod,
+        status: editingSale.status as "completed" | "pending" | "cancelled", // Use the existing status
         updatedAt: new Date(),
       };
       
@@ -215,7 +216,7 @@ const Sales = () => {
         cost: totalCost,
         profit: totalPrice - totalCost,
         paymentMethod: values.paymentMethod,
-        status: 'completed',
+        status: "completed" as "completed" | "pending" | "cancelled", // Explicitly set status as a literal type
         date: new Date(),
       };
       
