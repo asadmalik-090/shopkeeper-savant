@@ -103,6 +103,8 @@ const Settings = () => {
       phone: values.phone,
       role: values.role as UserRole,
       active: true,
+      username: values.username.toLowerCase().replace(/\s+/g, '.'),
+      password: `${values.role.toLowerCase()}123`,  // Default password based on role
     };
 
     setUsers([...users, newUser]);
