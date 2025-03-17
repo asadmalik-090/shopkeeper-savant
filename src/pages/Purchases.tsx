@@ -286,13 +286,10 @@ const Purchases = () => {
         </CardContent>
       </Card>
 
-      {/* Footer */}
-      <footer className="mt-16 border-t pt-8 pb-6 text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} Mobile Shop. All rights reserved.</p>
-        <p className="mt-1">Developed by Elevorix Solutions</p>
-      </footer>
+      {/* Removed duplicate footer here */}
     </div>
   );
 };
 
 export default Purchases;
+
