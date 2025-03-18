@@ -5,7 +5,7 @@ export interface Purchase {
   id: string;
   productId: string;
   productName: string;
-  supplierName: string;
+  supplierName: string;  // Making this required to match the usage in components
   quantity: number;
   cost: number;
   status: PurchaseStatus;
