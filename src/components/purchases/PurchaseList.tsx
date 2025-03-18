@@ -78,9 +78,9 @@ export const PurchaseList: React.FC<PurchaseListProps> = ({
             },
             {
               header: "",
-              accessorKey: "actions",
+              accessorKey: (row) => row.id, // Use a function that returns the id for the accessorKey
               cell: ({ row }) => {
-                const purchase = row.original;
+                const purchase = row as unknown as Purchase;
                 return (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
