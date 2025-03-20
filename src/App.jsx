@@ -67,11 +67,18 @@ const AppLayout = ({ children }) => {
       )}
       {isAuthenticated && <Sidebar isOpen={isSidebarOpen} />}
       <div className={isAuthenticated ? "lg:pl-64 flex-1 flex flex-col" : "flex-1 flex flex-col"}>
-        <main className="container mx-auto p-4 transition-all duration-300 animate-in fade-in slide-in flex-1">
+        <main className="container mx-auto px-3 py-3 md:p-4 transition-all duration-300 animate-in fade-in slide-in flex-1 max-w-full md:max-w-6xl">
           {children}
         </main>
         {isAuthenticated && <Footer />}
       </div>
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/30 z-20 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 };
@@ -108,7 +115,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
+      <Sonner position="top-center" closeButton />
       <BrowserRouter>
         <AppWithProvider />
       </BrowserRouter>

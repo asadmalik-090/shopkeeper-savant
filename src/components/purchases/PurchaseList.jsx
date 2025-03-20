@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, CheckCircle, XCircle, Pencil, Trash } from 'lucide-react';
+import { PURCHASE_STATUS } from '@/types/purchases';
 
 // Status badge colors
 const statusColors = {
@@ -29,10 +30,10 @@ export const PurchaseList = ({
 }) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Purchase Orders {searchTerm && `(${purchases.length} results)`}</CardTitle>
+      <CardHeader className="px-4 py-3 md:px-6 md:py-4">
+        <CardTitle className="text-lg md:text-xl">Purchase Orders {searchTerm && `(${purchases.length} results)`}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 py-2 md:px-6 md:py-4">
         <DataTable
           data={purchases}
           columns={[
@@ -43,13 +44,17 @@ export const PurchaseList = ({
             {
               header: "Supplier",
               accessorKey: "supplierName",
+              // Hide on smaller screens
+              cell: ({ getValue }) => (
+                <span className="hidden sm:inline">{getValue() || "—"}</span>
+              ),
             },
             {
-              header: "Quantity",
+              header: "Qty",
               accessorKey: "quantity",
             },
             {
-              header: "Total Cost",
+              header: "Cost",
               accessorKey: "cost",
               cell: (info) => `Rs. ${(info.getValue()).toLocaleString()}`,
             },
@@ -69,26 +74,26 @@ export const PurchaseList = ({
             },
             {
               header: "",
-              accessorKey: (row) => row.id, // Use a function that returns the id for the accessorKey
+              accessorKey: (row) => row.id,
               cell: ({ row }) => {
                 const purchase = row;
                 return (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 md:h-8 md:w-8">
+                        <MoreHorizontal className="h-3 w-3 md:h-4 md:w-4" />
                         <span className="sr-only">Open menu</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-[160px]">
                       <DropdownMenuGroup>
-                        {purchase.status === "Pending" && (
+                        {purchase.status === PURCHASE_STATUS.PENDING && (
                           <>
-                            <DropdownMenuItem onClick={() => onUpdateStatus(purchase.id, "Completed")}>
+                            <DropdownMenuItem onClick={() => onUpdateStatus(purchase.id, PURCHASE_STATUS.COMPLETED)}>
                               <CheckCircle className="mr-2 h-4 w-4" />
                               <span>Mark Completed</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onUpdateStatus(purchase.id, "Cancelled")}>
+                            <DropdownMenuItem onClick={() => onUpdateStatus(purchase.id, PURCHASE_STATUS.CANCELLED)}>
                               <XCircle className="mr-2 h-4 w-4" />
                               <span>Cancel Order</span>
                             </DropdownMenuItem>

@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -91,27 +90,32 @@
   * {
     @apply border-border;
   }
-
+  
   body {
     @apply bg-background text-foreground antialiased overflow-x-hidden min-h-screen;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-
+  
   html, body, #root {
     height: 100%;
   }
-
+  
   #root {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
   }
-
+  
   /* Safari specific styling for better mobile experience */
   @supports (-webkit-touch-callout: none) {
     input, textarea, select {
       font-size: 16px;
     }
+  }
+
+  /* Prevent text scaling on orientation change */
+  html {
+    -webkit-text-size-adjust: 100%;
   }
 }
 
@@ -215,5 +219,37 @@
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 300ms, transform 300ms;
+  }
+
+  /* Mobile-specific improvements */
+  .mobile-container {
+    @apply px-3 py-2 md:px-6 md:py-4;
+  }
+  
+  /* Responsive headings */
+  .page-title {
+    @apply text-xl md:text-3xl font-bold;
+  }
+  
+  .page-subtitle {
+    @apply text-sm md:text-base text-muted-foreground;
+  }
+  
+  /* Responsive buttons */
+  .mobile-btn {
+    @apply h-9 text-sm px-3 py-1 md:h-10 md:text-base md:px-4 md:py-2;
+  }
+  
+  /* Responsive form elements */
+  .mobile-form-group {
+    @apply space-y-1 md:space-y-2;
+  }
+  
+  .mobile-label {
+    @apply text-xs md:text-sm font-medium;
+  }
+  
+  .mobile-input {
+    @apply h-8 md:h-10 text-sm md:text-base;
   }
 }
