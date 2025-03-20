@@ -1,69 +1,93 @@
-# Welcome to your Lovable project
 
-## Project info
+# MobileShop - React.js Inventory Management System
 
-**URL**: https://lovable.dev/projects/de1dec24-a6bf-4008-8ccc-f01f81effb13
+A modern inventory and sales management application built with React.js for mobile shops.
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+MobileShop is a comprehensive solution for mobile phone retailers to manage their inventory, track sales and purchases, handle customer repairs, and generate business reports. The application provides an intuitive interface for managing all aspects of a mobile phone retail business.
 
-**Use Lovable**
+## Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/de1dec24-a6bf-4008-8ccc-f01f81effb13) and start prompting.
+- **Frontend**: React.js, JavaScript
+- **UI Library**: Tailwind CSS, shadcn/ui components
+- **Form Validation**: Zod, React Hook Form
+- **Routing**: React Router
+- **Date Management**: date-fns
+- **Icons**: Lucide React
 
-Changes made via Lovable will be committed automatically to this repo.
+## Features
 
-**Use your preferred IDE**
+- **Dashboard**: Get real-time insights into business performance
+- **Inventory Management**: Track products, stock levels, and pricing
+- **Sales Processing**: Create and manage sales transactions
+- **Purchase Orders**: Handle stock replenishment from suppliers
+- **Customer Management**: Maintain customer records and purchase history
+- **Repair Service**: Track repair tickets and service status
+- **Reporting**: Generate detailed business reports
+- **User Management**: Role-based access control with different permission levels
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js 16+ installed
+- npm or yarn package manager
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/mobileshop.git
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Navigate to the project directory:
+   ```
+   cd mobileshop
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+3. Install dependencies:
+   ```
+   npm install
+   ```
 
-**Edit a file directly in GitHub**
+4. Start the development server:
+   ```
+   npm run dev
+   ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+5. Open your browser and navigate to:
+   ```
+   http://localhost:3000
+   ```
 
-**Use GitHub Codespaces**
+## User Roles
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The application supports multiple user roles with different permission levels:
 
-## What technologies are used for this project?
+1. **Admin**: Full access to all features
+2. **Manager**: Can manage inventory, sales, and view reports
+3. **Cashier**: Can process sales and view inventory
+4. **Technician**: Can manage repairs and view inventory
 
-This project is built with .
+## Demo Credentials
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Use these credentials to test different user roles:
 
-## How can I deploy this project?
+- Admin: `admin` / `admin123`
+- Manager: `manager` / `manager123`
+- Cashier: `cashier` / `cashier123`
+- Technician: `tech` / `tech123`
 
-Simply open [Lovable](https://lovable.dev/projects/de1dec24-a6bf-4008-8ccc-f01f81effb13) and click on Share -> Publish.
+## Contributing
 
-## I want to use a custom domain - is that possible?
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Project developed by Elevorix Solutions
+- UI components powered by shadcn/ui
