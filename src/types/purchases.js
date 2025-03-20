@@ -1,20 +1,23 @@
 
 // Purchase status constants
-export const PURCHASE_STATUS = {
+export const PurchaseStatus = {
   PENDING: "Pending",
-  COMPLETED: "Completed", 
+  COMPLETED: "Completed",
   CANCELLED: "Cancelled"
 };
 
-// Purchase object structure for reference (no types in JS)
-// {
-//   id: string
-//   productId: string
-//   productName: string
-//   supplierName: string (optional)
-//   supplierId: string (optional)
-//   quantity: number
-//   cost: number
-//   status: string (one of the PURCHASE_STATUS values)
-//   date: Date
-// }
+// This file defines the structure of purchase-related data
+// Now using JSDoc comments for documentation instead of TypeScript types
+
+/**
+ * @typedef {Object} Purchase
+ * @property {string} id - Unique identifier
+ * @property {string} productId - Product identifier
+ * @property {string} productName - Name of the product
+ * @property {string} [supplierName] - Name of the supplier (optional)
+ * @property {string} [supplierId] - Supplier identifier (optional)
+ * @property {number} quantity - Quantity ordered
+ * @property {number} cost - Total cost of the purchase
+ * @property {string} status - Current status of the purchase
+ * @property {Date} date - Date of the purchase
+ */

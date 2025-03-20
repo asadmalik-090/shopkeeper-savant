@@ -1,87 +1,114 @@
 
-# MobileShop - React.js Inventory Management System
+# MobileShop Management System
 
-A modern inventory and sales management application built with React.js for mobile shops.
-
-## Overview
-
-MobileShop is a comprehensive solution for mobile phone retailers to manage their inventory, track sales and purchases, handle customer repairs, and generate business reports. The application provides an intuitive interface for managing all aspects of a mobile phone retail business.
-
-## Technology Stack
-
-- **Frontend**: React.js, JavaScript
-- **UI Library**: Tailwind CSS, shadcn/ui components
-- **Form Validation**: Zod, React Hook Form
-- **Routing**: React Router
-- **Date Management**: date-fns
-- **Icons**: Lucide React
+A comprehensive management system for mobile phone retail shops, built with React and optimized for both desktop and mobile use.
 
 ## Features
 
-- **Dashboard**: Get real-time insights into business performance
-- **Inventory Management**: Track products, stock levels, and pricing
-- **Sales Processing**: Create and manage sales transactions
-- **Purchase Orders**: Handle stock replenishment from suppliers
-- **Customer Management**: Maintain customer records and purchase history
-- **Repair Service**: Track repair tickets and service status
-- **Reporting**: Generate detailed business reports
-- **User Management**: Role-based access control with different permission levels
+- **Responsive Design**: Fully responsive interface that works on desktop and mobile
+- **Authentication System**: Secure login and user management
+- **Role-Based Access Control**: Different user roles with specific permissions
+- **Dashboard**: Overview of key metrics and store performance
+- **Inventory Management**: Track and manage product inventory
+- **Sales Management**: Process and track sales transactions
+- **Purchase Order Management**: Manage vendor orders and stock replenishment
+- **Customer Management**: Store and manage customer information
+- **Repair Management**: Track repair jobs and service tickets
+- **Reports**: Generate business performance reports
+
+## Technologies Used
+
+- **React**: Frontend framework
+- **React Router**: For navigation and routing
+- **Context API**: For state management
+- **Tailwind CSS**: For styling
+- **shadcn/ui**: UI component library
+- **Lucide Icons**: SVG icon set
+- **React Hook Form**: Form handling and validation
+- **Zod**: Schema validation
+- **TanStack Query**: Data fetching and caching
+- **date-fns**: Date utilities
 
 ## Getting Started
 
 ### Prerequisites
-
-- Node.js 16+ installed
-- npm or yarn package manager
+- Node.js (v14.0.0 or higher)
+- npm or yarn
 
 ### Installation
-
-1. Clone the repository:
+1. Clone the repository
    ```
-   git clone https://github.com/your-username/mobileshop.git
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd mobileshop
+   git clone https://github.com/yourusername/mobileshop-management.git
    ```
 
-3. Install dependencies:
+2. Install dependencies
    ```
+   cd mobileshop-management
    npm install
    ```
 
-4. Start the development server:
+3. Start the development server
    ```
    npm run dev
    ```
 
-5. Open your browser and navigate to:
-   ```
-   http://localhost:3000
-   ```
+4. Open your browser and navigate to `http://localhost:8080`
 
-## User Roles
+## User Roles and Access
 
-The application supports multiple user roles with different permission levels:
+The system supports four types of users with different access levels:
 
 1. **Admin**: Full access to all features
-2. **Manager**: Can manage inventory, sales, and view reports
-3. **Cashier**: Can process sales and view inventory
-4. **Technician**: Can manage repairs and view inventory
+   - Username: admin
+   - Password: admin123
 
-## Demo Credentials
+2. **Manager**: Access to inventory, sales, purchases, customers, and reports
+   - Username: manager
+   - Password: manager123
 
-Use these credentials to test different user roles:
+3. **Cashier**: Access to sales and customer management
+   - Username: cashier
+   - Password: cashier123
 
-- Admin: `admin` / `admin123`
-- Manager: `manager` / `manager123`
-- Cashier: `cashier` / `cashier123`
-- Technician: `tech` / `tech123`
+4. **Technician**: Access to repair management
+   - Username: tech
+   - Password: tech123
+
+## Project Structure
+
+```
+src/
+├── components/         # UI components
+│   ├── dashboard/      # Dashboard-related components
+│   ├── inventory/      # Inventory-related components
+│   ├── layout/         # Layout components (Header, Footer, Sidebar)
+│   ├── purchases/      # Purchase-related components
+│   ├── sales/          # Sales-related components
+│   ├── ui/             # Reusable UI components
+│   └── user/           # User-related components
+├── context/            # React Context providers
+├── data/               # Mock data and API simulation
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+├── pages/              # Page components for each route
+└── types/              # Type definitions
+```
+
+## Mobile Responsiveness
+
+The application is optimized for various screen sizes:
+- Adaptive layouts that reorganize for smaller screens
+- Touch-friendly UI elements
+- Collapsible sidebar for mobile views
+- Responsive tables and data displays
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
@@ -89,5 +116,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Project developed by Elevorix Solutions
-- UI components powered by shadcn/ui
+- UI design inspired by modern dashboard templates
+- Icons by Lucide Icons
+- UI components from shadcn/ui

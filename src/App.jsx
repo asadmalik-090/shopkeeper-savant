@@ -5,24 +5,25 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { AppProvider } from "./context/AppContext";
-import Header from "./components/layout/Header";
-import Sidebar from "./components/layout/Sidebar";
-import Footer from "./components/layout/Footer";
-import Index from "./pages/Index";
-import Inventory from "./pages/Inventory";
-import Sales from "./pages/Sales";
-import Purchases from "./pages/Purchases";
-import Customers from "./pages/Customers";
-import Repairs from "./pages/Repairs";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import Support from "./pages/Support";
-import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import NotFound from "./pages/NotFound";
-import { useAppContext } from "./context/AppContext";
+import { AppProvider } from "@/context/AppContext";
+import { useAppContext } from "@/context/AppContext";
+import Header from "@/components/layout/Header";
+import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer";
+import Index from "@/pages/Index";
+import Inventory from "@/pages/Inventory";
+import Sales from "@/pages/Sales";
+import Purchases from "@/pages/Purchases";
+import Customers from "@/pages/Customers";
+import Repairs from "@/pages/Repairs";
+import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
+import Support from "@/pages/Support";
+import Login from "@/pages/Login";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import NotFound from "@/pages/NotFound";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const queryClient = new QueryClient();
 
@@ -36,91 +37,115 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return children;
 };
 
-// Layout wrapper with animation
-const AppLayout = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const location = useLocation();
+const AppLayout = () => {
   const { isAuthenticated } = useAppContext();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const location = useLocation();
 
-  // Close sidebar on mobile when route changes
+  // Close sidebar on route change on mobile
   useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
 
-  // Don't show the layout for authentication pages
-  const authPages = ['/login', '/forgot-password', '/reset-password'];
-  if (authPages.includes(location.pathname)) {
-    return <>{children}</>;
+  // If not logged in, show the current route only
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
   }
 
-  // For authenticated users, show the full layout
+  // Main app layout for authenticated users
   return (
-    <div className="flex min-h-screen flex-col">
-      {isAuthenticated && (
-        <Header 
-          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
-          isSidebarOpen={isSidebarOpen} 
-        />
-      )}
-      {isAuthenticated && <Sidebar isOpen={isSidebarOpen} />}
-      <div className={isAuthenticated ? "lg:pl-64 flex-1 flex flex-col" : "flex-1 flex flex-col"}>
-        <main className="container mx-auto px-3 py-3 md:p-4 transition-all duration-300 animate-in fade-in slide-in flex-1 max-w-full md:max-w-6xl">
-          {children}
+    <div className="flex h-screen overflow-hidden bg-background">
+      <Sidebar isOpen={sidebarOpen} />
+      
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+        
+        <main className="flex-1 overflow-auto p-4 md:p-6">
+          <div className={`mx-auto w-full ${isMobile ? 'max-w-full' : 'max-w-7xl'}`}>
+            <Routes>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
+              <Route path="/inventory" element={
+                <ProtectedRoute>
+                  <Inventory />
+                </ProtectedRoute>
+              } />
+              <Route path="/sales" element={
+                <ProtectedRoute>
+                  <Sales />
+                </ProtectedRoute>
+              } />
+              <Route path="/purchases" element={
+                <ProtectedRoute>
+                  <Purchases />
+                </ProtectedRoute>
+              } />
+              <Route path="/customers" element={
+                <ProtectedRoute>
+                  <Customers />
+                </ProtectedRoute>
+              } />
+              <Route path="/repairs" element={
+                <ProtectedRoute>
+                  <Repairs />
+                </ProtectedRoute>
+              } />
+              <Route path="/reports" element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } />
+              <Route path="/support" element={
+                <ProtectedRoute>
+                  <Support />
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
         </main>
-        {isAuthenticated && <Footer />}
+        
+        <Footer />
       </div>
-      {/* Overlay for mobile sidebar */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/30 z-20 lg:hidden" 
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 };
 
-// App provider wrapper for managing state across the router
-const AppWithProvider = () => {
+function App() {
   return (
-    <AppProvider>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<AppLayout><Login /></AppLayout>} />
-        <Route path="/forgot-password" element={<AppLayout><ForgotPassword /></AppLayout>} />
-        <Route path="/reset-password" element={<AppLayout><ResetPassword /></AppLayout>} />
-        
-        {/* Protected routes */}
-        <Route path="/" element={<AppLayout><ProtectedRoute><Index /></ProtectedRoute></AppLayout>} />
-        <Route path="/inventory" element={<AppLayout><ProtectedRoute><Inventory /></ProtectedRoute></AppLayout>} />
-        <Route path="/sales" element={<AppLayout><ProtectedRoute><Sales /></ProtectedRoute></AppLayout>} />
-        <Route path="/purchases" element={<AppLayout><ProtectedRoute><Purchases /></ProtectedRoute></AppLayout>} />
-        <Route path="/customers" element={<AppLayout><ProtectedRoute><Customers /></ProtectedRoute></AppLayout>} />
-        <Route path="/repairs" element={<AppLayout><ProtectedRoute><Repairs /></ProtectedRoute></AppLayout>} />
-        <Route path="/reports" element={<AppLayout><ProtectedRoute><Reports /></ProtectedRoute></AppLayout>} />
-        <Route path="/settings" element={<AppLayout><ProtectedRoute><Settings /></ProtectedRoute></AppLayout>} />
-        <Route path="/support" element={<AppLayout><ProtectedRoute><Support /></ProtectedRoute></AppLayout>} />
-        
-        {/* Catch all */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AppProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AppProvider>
+            <AppLayout />
+            <Toaster />
+            <Sonner />
+          </AppProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner position="top-center" closeButton />
-      <BrowserRouter>
-        <AppWithProvider />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+}
 
 export default App;

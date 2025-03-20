@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/context/AppContext';
 import { formatDistanceToNow } from 'date-fns';
-import { LogOut, UserRound, ShieldCheck, Mail, Phone, Clock } from 'lucide-react';
+import { LogOut, ShieldCheck, Mail, Phone, Clock } from 'lucide-react';
 
 const UserProfileDialog = ({ trigger }) => {
   const { currentUser, logout } = useAppContext();
@@ -33,7 +33,7 @@ const UserProfileDialog = ({ trigger }) => {
         </DialogHeader>
         <div className="grid gap-6 py-4">
           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
+            <Avatar className="h-16 w-16 md:h-20 md:w-20">
               <AvatarImage src="/placeholder.svg" alt={currentUser.name} />
               <AvatarFallback>{currentUser.name.substring(0, 2)}</AvatarFallback>
             </Avatar>
