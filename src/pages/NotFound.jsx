@@ -1,14 +1,14 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
-import { FileQuestion } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
- * NotFound component displays a 404 error page when a route is not found
+ * 404 Not Found page with enhanced UI
+ * Logs the attempted path to the console for debugging
  * 
- * @returns {JSX.Element} 404 page
+ * @returns {JSX.Element} Not found page
  */
 const NotFound = () => {
   const location = useLocation();
@@ -21,32 +21,32 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/10 px-4">
-      <div className="text-center max-w-md mx-auto">
-        <div className="mb-6 flex justify-center">
-          <div className="relative">
-            <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-              <FileQuestion className="h-12 w-12 text-primary" />
-            </div>
-            <div className="absolute -top-2 -right-2 bg-destructive text-white text-xl font-bold rounded-full h-10 w-10 flex items-center justify-center border-2 border-background">
-              404
-            </div>
-          </div>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-b from-background to-muted/30">
+      <div className="flex flex-col items-center text-center max-w-md">
+        <div className="rounded-full bg-red-100 p-6 mb-6 animate-bounce">
+          <AlertTriangle className="h-12 w-12 text-red-500" />
         </div>
         
-        <h1 className="text-3xl font-bold mb-2">Page Not Found</h1>
+        <h1 className="text-5xl font-bold mb-2 text-red-500">404</h1>
+        <h2 className="text-2xl font-semibold mb-4">Page Not Found</h2>
+        
         <p className="text-muted-foreground mb-6">
-          The page you're looking for doesn't exist or has been moved.
-          <br/>
-          Path: <code className="bg-muted px-1 py-0.5 rounded font-mono text-sm">{location.pathname}</code>
+          The page you are looking for might have been removed, had its name changed, 
+          or is temporarily unavailable.
         </p>
         
-        <div className="space-y-3">
-          <Link to="/">
-            <Button className="w-full">Return to Dashboard</Button>
+        <p className="text-sm text-muted-foreground mb-8">
+          Attempted path: <code className="bg-muted px-1 py-0.5 rounded">{location.pathname}</code>
+        </p>
+        
+        <div className="space-y-2 w-full max-w-xs">
+          <Link to="/" className="w-full">
+            <Button className="w-full" size="lg">
+              Return to Dashboard
+            </Button>
           </Link>
           
-          <Button variant="outline" onClick={() => window.history.back()} className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => window.history.back()}>
             Go Back
           </Button>
         </div>

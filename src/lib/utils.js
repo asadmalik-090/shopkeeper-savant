@@ -1,81 +1,72 @@
 
 /**
- * Utility functions for the application
- */
-
-/**
  * Combines multiple class names into a single string
- * Useful for conditionally applying classes
+ * Uses clsx and tailwind-merge to handle class conflicts properly
  * 
- * @param  {...any} inputs - Class names to combine
- * @returns {string} Combined class names
- * 
- * @example
- * // Basic usage
- * cn('text-red-500', 'bg-blue-500')
- * // => 'text-red-500 bg-blue-500'
- * 
- * @example
- * // With conditional classes
- * cn('text-red-500', isActive && 'bg-blue-500')
- * // => 'text-red-500 bg-blue-500' or 'text-red-500' if isActive is false
+ * @param  {...string} inputs - Class names to be combined
+ * @returns {string} - Combined class names
  */
-function cn(...inputs) {
-  return inputs.filter(Boolean).join(' ');
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
 }
 
 /**
- * Formats a date to a string
+ * Format a number as currency
  * 
- * @param {Date} date - Date to format
- * @param {string} format - Format string
- * @returns {string} Formatted date string
+ * @param {number} value - Number to format
+ * @param {string} currency - Currency symbol (default: Rs.)
+ * @returns {string} - Formatted currency string
  */
-function formatDate(date, format = 'yyyy-MM-dd') {
-  if (!date) return '';
-  const d = new Date(date);
-  
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  
-  return format
-    .replace('yyyy', year)
-    .replace('MM', month)
-    .replace('dd', day);
-}
-
-/**
- * Formats a currency value
- * 
- * @param {number} value - Value to format
- * @param {string} currency - Currency symbol
- * @returns {string} Formatted currency string
- */
-function formatCurrency(value, currency = 'Rs.') {
+export function formatCurrency(value, currency = "Rs.") {
   return `${currency} ${value.toLocaleString()}`;
 }
 
 /**
- * Truncates a string to a specific length and adds ellipsis
+ * Format a date to a readable string
  * 
- * @param {string} str - String to truncate
- * @param {number} length - Maximum length
- * @returns {string} Truncated string
+ * @param {Date} date - Date to format
+ * @param {Object} options - Intl.DateTimeFormat options
+ * @returns {string} - Formatted date string
  */
-function truncateString(str, length = 50) {
-  if (!str) return '';
-  return str.length > length ? `${str.substring(0, length)}...` : str;
+export function formatDate(date, options = {}) {
+  const defaultOptions = { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  };
+  
+  return new Date(date).toLocaleDateString(undefined, { ...defaultOptions, ...options });
 }
 
 /**
- * Generates a unique ID
+ * Truncate text to a specified length
  * 
- * @param {string} prefix - Prefix for the ID
- * @returns {string} Unique ID
+ * @param {string} text - Text to truncate 
+ * @param {number} length - Maximum length
+ * @returns {string} - Truncated text with ellipsis if needed
  */
-function generateId(prefix = 'id') {
-  return `${prefix}_${Math.random().toString(36).substr(2, 9)}`;
+export function truncateText(text, length = 50) {
+  if (!text || text.length <= length) return text;
+  return text.slice(0, length) + '...';
 }
 
-export { cn, formatDate, formatCurrency, truncateString, generateId };
+/**
+ * Get initials from a name
+ * 
+ * @param {string} name - Full name
+ * @param {number} count - Number of initials to return
+ * @returns {string} - Initials
+ */
+export function getInitials(name, count = 2) {
+  if (!name) return '';
+  
+  return name
+    .split(' ')
+    .slice(0, count)
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
+}

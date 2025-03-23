@@ -1,120 +1,152 @@
 
-import React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAppContext } from '@/context/AppContext';
-import { formatDistanceToNow } from 'date-fns';
-import { LogOut, ShieldCheck, Mail, Phone, Clock, MapPin } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { getInitials } from '@/lib/utils';
 
 /**
- * UserProfileDialog component displays user information in a dialog
+ * User profile dialog component
  * 
  * @param {Object} props - Component props
- * @param {React.ReactNode} props.trigger - The element that will trigger the dialog
+ * @param {React.ReactNode} props.trigger - Element that triggers the dialog
  * @returns {JSX.Element} User profile dialog
  */
 const UserProfileDialog = ({ trigger }) => {
-  const { currentUser, logout } = useAppContext();
+  const { currentUser, updateUserProfile, logout } = useAppContext();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    profileImage: currentUser?.profileImage || '',
+  });
 
-  if (!currentUser) {
-    return null;
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-  const formatLoginDate = (date) => {
-    if (!date) return 'Never';
-    return formatDistanceToNow(new Date(date), { addSuffix: true });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateUserProfile(formData);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been updated successfully",
+    });
+    setOpen(false);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Simple client-side file preview
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setFormData(prev => ({
+          ...prev,
+          profileImage: reader.result
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">User Profile</DialogTitle>
+          <DialogTitle>User Profile</DialogTitle>
           <DialogDescription>
-            Your account information and login history
+            View and update your profile information
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="grid gap-6 py-4">
-          {/* Profile Header */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-primary/20">
-              <AvatarImage src="/placeholder.svg" alt={currentUser.name} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {currentUser.name.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="text-lg font-medium">{currentUser.name}</h3>
-              <div className="flex items-center gap-1 text-muted-foreground bg-muted px-2 py-0.5 rounded-full text-xs inline-flex mt-1">
-                <ShieldCheck className="h-3 w-3" />
-                <span>{currentUser.role}</span>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-6 py-4">
+            <div className="flex flex-col items-center gap-4">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={formData.profileImage || ""} />
+                <AvatarFallback className="text-lg">
+                  {getInitials(formData.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="profile-image">Profile Image</Label>
+                <Input 
+                  id="profile-image" 
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
               </div>
-              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>Last login: {formatLoginDate(currentUser.lastLogin)}</span>
-              </div>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="role" className="text-right">
+                Role
+              </Label>
+              <Input
+                id="role"
+                value={currentUser?.role || ""}
+                disabled
+                className="col-span-3 bg-muted"
+              />
             </div>
           </div>
-
-          {/* Contact Information */}
-          <div className="space-y-3 bg-muted/30 p-3 rounded-lg">
-            <h4 className="text-sm font-medium">Contact Information</h4>
-            <div className="grid gap-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{currentUser.email}</span>
-              </div>
-              {currentUser.phone && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{currentUser.phone}</span>
-                </div>
-              )}
-              {currentUser.location && (
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{currentUser.location}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Login History */}
-          {currentUser.loginHistory && currentUser.loginHistory.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium">Login History</h4>
-              <div className="max-h-[150px] overflow-auto rounded-lg border p-3 bg-muted/10">
-                <div className="space-y-2">
-                  {currentUser.loginHistory.slice().reverse().map((login, index) => (
-                    <div key={index} className="flex justify-between text-xs py-1 border-b last:border-0">
-                      <span className="text-muted-foreground">
-                        {formatLoginDate(login.date)}
-                      </span>
-                      <span className="font-mono">
-                        {login.ip || 'Local access'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Logout Button */}
-          <Button 
-            variant="destructive" 
-            onClick={logout} 
-            className="mt-2 w-full transition-all hover:bg-red-600 hover:scale-[1.02]"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
-        </div>
+          <DialogFooter className="sm:justify-between">
+            <Button type="button" variant="outline" onClick={() => logout()}>
+              Sign Out
+            </Button>
+            <Button type="submit">Save Changes</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

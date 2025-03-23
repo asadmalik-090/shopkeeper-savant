@@ -1,9 +1,4 @@
 
-/**
- * @fileoverview Search component for purchases
- * This component provides a search input for filtering purchases.
- */
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';

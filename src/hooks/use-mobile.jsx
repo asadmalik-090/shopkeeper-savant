@@ -1,69 +1,47 @@
 
-import * as React from "react";
+import { useState, useEffect } from 'react';
 
 /**
- * Mobile breakpoint in pixels
- */
-const MOBILE_BREAKPOINT = 768;
-
-/**
- * Hook to detect if the current viewport is mobile
+ * Custom hook to detect if the current device is mobile
+ * based on screen width
  * 
- * @returns {boolean} True if viewport is mobile size
+ * @param {number} breakpoint - Width threshold in pixels (default: 768)
+ * @returns {boolean} - True if screen width is less than breakpoint
  * 
  * @example
- * function Component() {
- *   const isMobile = useIsMobile();
- *   
- *   return (
- *     <div>
- *       {isMobile ? 'Mobile View' : 'Desktop View'}
- *     </div>
- *   );
- * }
+ * const isMobile = useIsMobile();
+ * 
+ * return (
+ *   <div className={isMobile ? "mobile-layout" : "desktop-layout"}>
+ *     {isMobile ? <MobileNav /> : <DesktopNav />}
+ *   </div>
+ * );
  */
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(undefined);
+export function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
+  );
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < breakpoint);
     };
-    
-    // Initial check
-    onChange();
-    
-    // Add listener for viewport changes
-    mql.addEventListener("change", onChange);
-    
-    // Clean up
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
 
-  return !!isMobile;
+    // Set the initial value
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Remove event listener on cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [breakpoint]);
+
+  return isMobile;
 }
 
-/**
- * Component to conditionally render content based on mobile viewport
- * 
- * @param {Object} props - Component props
- * @param {React.ReactNode} props.mobile - Content to show on mobile
- * @param {React.ReactNode} props.desktop - Content to show on desktop
- * @returns {React.ReactNode} Appropriate content for viewport size
- * 
- * @example
- * <MobileSwitch
- *   mobile={<SimpleMenu />}
- *   desktop={<ExpandedMenu />}
- * />
- */
-export function MobileSwitch({ mobile, desktop }) {
-  const isMobile = useIsMobile();
-  
-  // Return null until we know the viewport size
-  if (isMobile === undefined) return null;
-  
-  return isMobile ? mobile : desktop;
-}
+export default useIsMobile;

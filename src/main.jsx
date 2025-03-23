@@ -1,7 +1,15 @@
 
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 
-// Mount the app to the root element
-createRoot(document.getElementById("root")).render(<App />);
+/**
+ * Main entry point for the application
+ * Renders the App component to the DOM
+ */
+createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
