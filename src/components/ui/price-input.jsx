@@ -2,6 +2,21 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { Input } from "@/components/ui/input";
 
+/**
+ * PriceInput component for monetary input with formatting
+ * 
+ * @param {Object} props - Component props
+ * @param {number} props.value - Current numeric value
+ * @param {Function} props.onChange - Function to update value
+ * @param {string} [props.prefix] - Currency prefix
+ * @param {string} [props.className] - Additional CSS classes
+ * @returns {JSX.Element} Formatted price input
+ * 
+ * @example
+ * const [price, setPrice] = useState(0);
+ * 
+ * <PriceInput value={price} onChange={setPrice} />
+ */
 const PriceInput = forwardRef(
   ({ value = 0, onChange, prefix = "Rs. ", className, ...props }, ref) => {
     const [displayValue, setDisplayValue] = useState("");
@@ -50,7 +65,7 @@ const PriceInput = forwardRef(
     return (
       <div className="relative flex items-center">
         {displayValue !== "" && (
-          <span className="absolute left-3 text-muted-foreground">{prefix}</span>
+          <span className="absolute left-3 text-muted-foreground font-medium">{prefix}</span>
         )}
         <Input
           ref={ref}
@@ -59,7 +74,7 @@ const PriceInput = forwardRef(
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className={`pl-12 ${className}`}
+          className={`pl-12 font-mono font-medium ${className}`}
           {...props}
         />
       </div>

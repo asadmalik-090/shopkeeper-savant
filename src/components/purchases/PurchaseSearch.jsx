@@ -35,7 +35,7 @@ export const PurchaseSearch = ({
       <Search className="absolute left-2 md:left-3 top-1/2 h-3 w-3 md:h-4 md:w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         placeholder={placeholder}
-        className="pl-7 md:pl-9 pr-2 md:pr-4 text-sm h-8 md:h-10"
+        className="pl-7 md:pl-9 pr-2 md:pr-4 text-sm h-8 md:h-10 rounded-lg border-muted-foreground/20 focus:border-primary focus:ring-1 focus:ring-primary"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         aria-label="Search purchases"

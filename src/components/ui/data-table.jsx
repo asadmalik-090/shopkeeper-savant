@@ -11,6 +11,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+/**
+ * DataTable component for displaying tabular data with search, pagination, and row actions
+ * 
+ * @param {Object} props - Component props
+ * @param {Array} props.data - Array of data objects to display
+ * @param {Array} props.columns - Array of column configuration objects
+ * @param {Function} [props.onRowClick] - Function to call when a row is clicked
+ * @param {Array} [props.actions] - Array of action configuration objects
+ * @param {string} [props.searchPlaceholder] - Placeholder text for search input
+ * @param {Array} [props.searchKeys] - Array of object keys to search on
+ * @returns {JSX.Element} Data table with search and pagination
+ */
 function DataTable({
   data,
   columns,
@@ -27,7 +39,7 @@ function DataTable({
   const filteredData = searchQuery && searchKeys
     ? data.filter(item => 
         searchKeys.some(key => 
-          String(item[key]).toLowerCase().includes(searchQuery.toLowerCase())
+          String(item[key] || '').toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
     : data;
@@ -62,12 +74,12 @@ function DataTable({
               setCurrentPage(1); // Reset to first page on search
             }}
             placeholder={searchPlaceholder}
-            className="pl-9 pr-4"
+            className="pl-9 pr-4 h-9 rounded-lg border-muted-foreground/20 focus:border-primary"
           />
         </div>
       )}
 
-      <div className="rounded-md border overflow-x-auto pb-2">
+      <div className="rounded-lg border overflow-x-auto shadow-sm">
         <table className="w-full caption-bottom text-sm">
           <thead className="bg-muted/50">
             <tr className="border-b transition-colors hover:bg-muted/80">
@@ -107,11 +119,11 @@ function DataTable({
                     <td className="p-2 md:p-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="w-[160px]">
                           {actions
                             .filter(action => !action.showWhen || action.showWhen(row))
                             .map((action, i, filteredActions) => (
@@ -121,6 +133,7 @@ function DataTable({
                                     e.stopPropagation();
                                     action.onClick(row);
                                   }}
+                                  className="cursor-pointer"
                                 >
                                   {action.icon && (
                                     <span className="mr-2">{action.icon}</span>

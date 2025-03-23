@@ -1,91 +1,69 @@
 
-/**
- * @fileoverview Hook for detecting mobile viewport size
- * This hook helps components adapt to mobile and desktop viewports.
- */
-
-import { useState, useEffect } from "react";
+import * as React from "react";
 
 /**
  * Mobile breakpoint in pixels
- * Screens smaller than this are considered mobile devices
- * @constant {number}
  */
 const MOBILE_BREAKPOINT = 768;
 
 /**
- * Hook to detect if the current viewport is mobile-sized
+ * Hook to detect if the current viewport is mobile
  * 
- * @returns {boolean} True if the viewport is smaller than the mobile breakpoint
+ * @returns {boolean} True if viewport is mobile size
  * 
  * @example
- * // In a component:
- * const isMobile = useIsMobile();
- * 
- * return (
- *   <div>
- *     {isMobile ? (
- *       <MobileView />
- *     ) : (
- *       <DesktopView />
- *     )}
- *   </div>
- * );
+ * function Component() {
+ *   const isMobile = useIsMobile();
+ *   
+ *   return (
+ *     <div>
+ *       {isMobile ? 'Mobile View' : 'Desktop View'}
+ *     </div>
+ *   );
+ * }
  */
 export function useIsMobile() {
-  // Initialize state as undefined to prevent hydration issues
-  const [isMobile, setIsMobile] = useState(undefined);
+  const [isMobile, setIsMobile] = React.useState(undefined);
 
-  useEffect(() => {
-    // Function to check if viewport is mobile
-    const checkMobile = () => {
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    
+    const onChange = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
     
-    // Create media query list for mobile breakpoint
-    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    // Initial check
+    onChange();
     
     // Add listener for viewport changes
-    mediaQuery.addEventListener("change", checkMobile);
+    mql.addEventListener("change", onChange);
     
-    // Check initial state
-    checkMobile();
-    
-    // Clean up listener when component unmounts
-    return () => mediaQuery.removeEventListener("change", checkMobile);
+    // Clean up
+    return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // Return boolean state (default to false until determined)
   return !!isMobile;
 }
 
 /**
- * Hook to get current viewport dimensions
+ * Component to conditionally render content based on mobile viewport
  * 
- * @returns {{width: number, height: number}} Current viewport dimensions
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.mobile - Content to show on mobile
+ * @param {React.ReactNode} props.desktop - Content to show on desktop
+ * @returns {React.ReactNode} Appropriate content for viewport size
  * 
  * @example
- * const { width, height } = useViewportSize();
- * console.log(`Viewport is ${width}px × ${height}px`);
+ * <MobileSwitch
+ *   mobile={<SimpleMenu />}
+ *   desktop={<ExpandedMenu />}
+ * />
  */
-export function useViewportSize() {
-  const [dimensions, setDimensions] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-    
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return dimensions;
+export function MobileSwitch({ mobile, desktop }) {
+  const isMobile = useIsMobile();
+  
+  // Return null until we know the viewport size
+  if (isMobile === undefined) return null;
+  
+  return isMobile ? mobile : desktop;
 }

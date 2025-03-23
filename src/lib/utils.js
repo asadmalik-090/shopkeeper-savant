@@ -1,94 +1,81 @@
 
 /**
- * Utility functions for the MobileShop Management System
+ * Utility functions for the application
  */
-
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 
 /**
- * Combines multiple class names and applies Tailwind's merge strategy
- * This utility helps avoid class conflicts when combining conditional classes
+ * Combines multiple class names into a single string
+ * Useful for conditionally applying classes
  * 
- * @param {...string} inputs - Class names to combine
- * @returns {string} - Merged class string
+ * @param  {...any} inputs - Class names to combine
+ * @returns {string} Combined class names
+ * 
+ * @example
+ * // Basic usage
+ * cn('text-red-500', 'bg-blue-500')
+ * // => 'text-red-500 bg-blue-500'
+ * 
+ * @example
+ * // With conditional classes
+ * cn('text-red-500', isActive && 'bg-blue-500')
+ * // => 'text-red-500 bg-blue-500' or 'text-red-500' if isActive is false
  */
-export function cn(...inputs) {
-  return twMerge(clsx(inputs));
+function cn(...inputs) {
+  return inputs.filter(Boolean).join(' ');
 }
 
 /**
- * Formats a number as currency
+ * Formats a date to a string
  * 
- * @param {number} value - The number to format
- * @param {string} [currency='USD'] - Currency code
- * @returns {string} - Formatted currency string
+ * @param {Date} date - Date to format
+ * @param {string} format - Format string
+ * @returns {string} Formatted date string
  */
-export function formatCurrency(value, currency = 'USD') {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(value);
-}
-
-/**
- * Formats a date to a readable string
- * 
- * @param {Date|string|number} date - Date to format
- * @param {boolean} [includeTime=false] - Whether to include time
- * @returns {string} - Formatted date string
- */
-export function formatDate(date, includeTime = false) {
+function formatDate(date, format = 'yyyy-MM-dd') {
   if (!date) return '';
+  const d = new Date(date);
   
-  const dateObj = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   
-  const options = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {})
-  };
-  
-  return dateObj.toLocaleDateString('en-US', options);
+  return format
+    .replace('yyyy', year)
+    .replace('MM', month)
+    .replace('dd', day);
 }
 
 /**
- * Truncates a string if it exceeds the maximum length
+ * Formats a currency value
  * 
- * @param {string} text - Text to truncate
- * @param {number} [maxLength=50] - Maximum length before truncation
- * @returns {string} - Truncated text with ellipsis if needed
+ * @param {number} value - Value to format
+ * @param {string} currency - Currency symbol
+ * @returns {string} Formatted currency string
  */
-export function truncateText(text, maxLength = 50) {
-  if (!text || text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength)}...`;
+function formatCurrency(value, currency = 'Rs.') {
+  return `${currency} ${value.toLocaleString()}`;
+}
+
+/**
+ * Truncates a string to a specific length and adds ellipsis
+ * 
+ * @param {string} str - String to truncate
+ * @param {number} length - Maximum length
+ * @returns {string} Truncated string
+ */
+function truncateString(str, length = 50) {
+  if (!str) return '';
+  return str.length > length ? `${str.substring(0, length)}...` : str;
 }
 
 /**
  * Generates a unique ID
  * 
- * @returns {string} - Unique ID
+ * @param {string} prefix - Prefix for the ID
+ * @returns {string} Unique ID
  */
-export function generateId() {
-  return Math.random().toString(36).substring(2, 9);
+function generateId(prefix = 'id') {
+  return `${prefix}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Debounces a function call
- * 
- * @param {Function} func - Function to debounce
- * @param {number} [wait=300] - Wait time in milliseconds
- * @returns {Function} - Debounced function
- */
-export function debounce(func, wait = 300) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
+export { cn, formatDate, formatCurrency, truncateString, generateId };
