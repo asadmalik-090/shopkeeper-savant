@@ -1,0 +1,13 @@
+
+{
+  "scripts": {
+    "dev": "vite",
+    "server": "node server.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+    "seed": "node seed-data.js",
+    "build": "vite build",
+    "start": "NODE_ENV=production node server.js",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  }
+}
