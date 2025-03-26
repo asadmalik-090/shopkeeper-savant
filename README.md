@@ -1,84 +1,69 @@
+# Welcome to your Lovable project
 
-# MobileShop Management System
+## Project info
 
-A comprehensive management system for mobile phone shops with inventory management, sales tracking, purchase management, and more.
+**URL**: https://lovable.dev/projects/de1dec24-a6bf-4008-8ccc-f01f81effb13
 
-## Features
+## How can I edit this code?
 
-- Dashboard with sales analytics and key metrics
-- Inventory management with stock tracking
-- Sales processing and history
-- Purchase order management
-- Customer relationship management
-- Repair tracking system
-- Comprehensive reporting tools
-- User management with role-based access control
+There are several ways of editing your application.
 
-## Getting Started
+**Use Lovable**
 
-### Prerequisites
+Simply visit the [Lovable Project](https://lovable.dev/projects/de1dec24-a6bf-4008-8ccc-f01f81effb13) and start prompting.
 
-- Node.js 16+ installed
-- npm or yarn package manager
+Changes made via Lovable will be committed automatically to this repo.
 
-### Installation
+**Use your preferred IDE**
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/mobileshop-management.git
-```
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-2. Install dependencies:
-```bash
-cd mobileshop-management
-npm install
-```
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-3. Start the development server:
-```bash
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-4. Open your browser and navigate to http://localhost:5173
+**Edit a file directly in GitHub**
 
-### Demo Credentials
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-- Admin: admin/admin123
-- Manager: manager/manager123
-- Cashier: cashier/cashier123
-- Technician: tech/tech123
+**Use GitHub Codespaces**
 
-## Project Structure
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-```
-src/
-├── components/         # UI components
-│   ├── dashboard/      # Dashboard-related components
-│   ├── layout/         # Layout components (Header, Footer, Sidebar)
-│   ├── purchases/      # Purchase-related components
-│   ├── sales/          # Sales-related components
-│   ├── ui/             # Reusable UI components
-│   └── user/           # User-related components
-├── context/            # React Context providers
-├── hooks/              # Custom React hooks
-├── lib/                # Utility functions
-├── pages/              # Page components for each route
-└── types/              # Type definitions
-```
+## What technologies are used for this project?
 
-## Technologies Used
+This project is built with .
 
+- Vite
+- TypeScript
 - React
-- React Router
+- shadcn-ui
 - Tailwind CSS
-- shadcn/ui components
-- Recharts for data visualization
-- React Query for data fetching
 
-## Contributing
+## How can I deploy this project?
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Simply open [Lovable](https://lovable.dev/projects/de1dec24-a6bf-4008-8ccc-f01f81effb13) and click on Share -> Publish.
 
-## License
+## I want to use a custom domain - is that possible?
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)

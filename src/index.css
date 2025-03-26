@@ -1,52 +1,89 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 240 10% 3.9%;
+
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
+
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
+
+    --secondary: 240 5% 96%;
     --secondary-foreground: 240 5.9% 10%;
+
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
+
+    --accent: 211 100% 96%;
     --accent-foreground: 240 5.9% 10%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+    --ring: 240 5% 64.9%;
+
+    --radius: 0.8rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 211 100% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 211 100% 50%;
   }
 
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
+
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
+
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 98%;
+
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
+
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
+
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 211 100% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 211 100% 50%;
   }
 }
 
@@ -54,96 +91,129 @@
   * {
     @apply border-border;
   }
-  
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased overflow-x-hidden min-h-screen;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Safari specific styling for better mobile experience */
+  @supports (-webkit-touch-callout: none) {
+    input, textarea, select {
+      font-size: 16px;
+    }
   }
 }
 
-/* Sidebar styles */
 @layer components {
-  .sidebar-item {
-    @apply flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground;
+  .glassmorphism {
+    @apply bg-white/80 dark:bg-black/80 backdrop-blur-lg border border-white/20 dark:border-black/20;
   }
-  
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors;
+  }
+
   .sidebar-item-active {
     @apply bg-accent text-accent-foreground;
   }
-  
+
   .sidebar-item-inactive {
-    @apply text-muted-foreground;
+    @apply text-muted-foreground hover:bg-muted hover:text-foreground;
   }
-}
 
-/* Mobile optimizations */
-@media (max-width: 640px) {
-  .h1, h1 {
-    @apply text-xl;
+  /* Table styling */
+  .table-container {
+    @apply w-full overflow-auto rounded-lg border;
   }
-  
-  .h2, h2 {
-    @apply text-lg;
-  }
-  
-  button, .button {
-    @apply text-sm;
-  }
-  
-  .card-title {
-    @apply text-base;
-  }
-  
-  .card-header {
-    @apply p-4;
-  }
-  
-  .card-content {
-    @apply p-4;
-  }
-  
-  .card-footer {
-    @apply p-4;
-  }
-  
-  .input {
-    @apply h-9 text-sm;
-  }
-  
-  .table-cell {
-    @apply p-2 text-xs;
-  }
-  
-  .dialog-content {
-    @apply p-4;
-  }
-}
 
-/* Scrollbar customization */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+  .data-table {
+    @apply w-full caption-bottom text-sm;
+  }
 
-::-webkit-scrollbar-track {
-  background: hsl(var(--secondary));
-  border-radius: 4px;
-}
+  .data-table-header {
+    @apply [&_tr]:border-b;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 4px;
-}
+  .data-table-body {
+    @apply [&_tr:last-child]:border-0;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
-}
+  .data-table-footer {
+    @apply border-t bg-muted/50 px-2;
+  }
 
-/* Touch optimizations */
-@media (hover: none) {
-  button, 
-  [role="button"],
-  .clickable {
-    @apply min-h-[44px] min-w-[44px]; /* Larger touch targets */
+  .data-table-row {
+    @apply border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted;
+  }
+
+  .data-table-cell {
+    @apply p-4 align-middle [&:has([role=checkbox])]:pr-0 font-normal;
+  }
+
+  .data-table-caption {
+    @apply mt-4 text-sm text-muted-foreground;
+  }
+
+  /* Form elements */
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium mb-1 text-foreground;
+  }
+
+  .form-input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background 
+    file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground 
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+    disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Animation classes */
+  .animate-in {
+    animation: fade-in 0.3s ease forwards;
+  }
+
+  .animate-out {
+    animation: fade-out 0.3s ease forwards;
+  }
+
+  /* Page transition */
+  .page-transition-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .page-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms, transform 300ms;
+  }
+
+  .page-transition-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .page-transition-exit-active {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 300ms, transform 300ms;
   }
 }
